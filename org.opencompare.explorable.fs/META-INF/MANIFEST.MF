@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Fs
+Bundle-SymbolicName: org.opencompare.explorable.fs
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: org.opencompare.explorable.fs.Activator
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: org.opencompare.database,
+ org.opencompare.explorable,
+ org.opencompare.explore,
+ org.opencompare.explorers,
+ org.osgi.framework;version="1.3.0"
