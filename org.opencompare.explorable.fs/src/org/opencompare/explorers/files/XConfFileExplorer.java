@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 
 import javax.xml.parsers.SAXParserFactory;
 
+import org.opencompare.database.Database;
 import org.opencompare.explorable.Configuration;
 import org.opencompare.explorable.Explorable;
 import org.opencompare.explorable.ExplorableFactory;
@@ -25,15 +26,16 @@ public class XConfFileExplorer implements Explorer {
     
     private static class XConfParser extends DefaultHandler {
         private final XConfFile file;
+        private final Database threadDatabase;
         
         private String currentParent = null;
         private int configurationRefs = 0;
         private int propagationActions = 0;
         private int classPathEntries = 0;
-
         
-        private XConfParser(XConfFile file) {
+        private XConfParser(XConfFile file, Database threadDatabase) {
             this.file = file;
+            this.threadDatabase = threadDatabase;
         }
 
         private String getAttributeValue(Attributes atts, String name) {
@@ -51,11 +53,11 @@ public class XConfFileExplorer implements Explorer {
                     // For Configuration tag we will output only its attributes
                     String targetFile = getAttributeValue(atts, "targetFile");
                     if (targetFile != null) {
-                    	Configuration.enqueue(file, RootFactory.TYPE_PROPERTY, "@targetFile", targetFile);
+                    	Configuration.enqueue(threadDatabase, file, RootFactory.TYPE_PROPERTY, "@targetFile", targetFile);
                     }
                     String serviceProvider = getAttributeValue(atts, "serviceProvider");
                     if (serviceProvider != null) {
-                    	Configuration.enqueue(file, RootFactory.TYPE_PROPERTY, "@serviceProvider", serviceProvider);
+                    	Configuration.enqueue(threadDatabase, file, RootFactory.TYPE_PROPERTY, "@serviceProvider", serviceProvider);
                     }
                 } else if (
                         tag.equalsIgnoreCase("Property") || 
@@ -72,7 +74,7 @@ public class XConfFileExplorer implements Explorer {
                         for (int i = 0; i < atts.getLength(); ++i) {
                             String attName = atts.getQName(i);
                             if (!attName.equals("name")) {
-                            	Configuration.enqueue(file, RootFactory.TYPE_PROPERTY, namePrefix + " @" + attName, atts.getValue(i));
+                            	Configuration.enqueue(threadDatabase, file, RootFactory.TYPE_PROPERTY, namePrefix + " @" + attName, atts.getValue(i));
                             }
                         }
                         if (tag.equalsIgnoreCase("Resource") || tag.equalsIgnoreCase("Service")) {
@@ -86,7 +88,7 @@ public class XConfFileExplorer implements Explorer {
                         for (int i = 0; i < atts.getLength(); ++i) {
                             String attName = atts.getQName(i);
                             if (!attName.equals("selector")) {
-                            	Configuration.enqueue(file, RootFactory.TYPE_PROPERTY, currentParent + " Option " + name + " @" + attName, atts.getValue(i));
+                            	Configuration.enqueue(threadDatabase, file, RootFactory.TYPE_PROPERTY, currentParent + " Option " + name + " @" + attName, atts.getValue(i));
                             }
                         }
                     }
@@ -94,7 +96,7 @@ public class XConfFileExplorer implements Explorer {
                     String value = getAttributeValue(atts, "href");
                     if (value != null) {
                         ++configurationRefs;
-                        Configuration.enqueue(file, RootFactory.TYPE_PROPERTY, "ConfigurationRef " + configurationRefs, value);
+                        Configuration.enqueue(threadDatabase, file, RootFactory.TYPE_PROPERTY, "ConfigurationRef " + configurationRefs, value);
                     }
                 } else if (tag.equalsIgnoreCase("PropagationAction")) {
                     String value = getAttributeValue(atts, "className");
@@ -102,7 +104,7 @@ public class XConfFileExplorer implements Explorer {
                         ++propagationActions;
                         classPathEntries = 0;
                         String name = "PropagationAction " + propagationActions;
-                        Configuration.enqueue(file, RootFactory.TYPE_PROPERTY, name, value);
+                        Configuration.enqueue(threadDatabase, file, RootFactory.TYPE_PROPERTY, name, value);
                         currentParent = name;
                     }
                 } else if (tag.equalsIgnoreCase("ClassPathEntry")) {
@@ -111,11 +113,11 @@ public class XConfFileExplorer implements Explorer {
                         String namePrefix = currentParent + " ClassPathEntry " + classPathEntries;
                         String dir = getAttributeValue(atts, "dir");
                         if (dir != null) {
-                        	Configuration.enqueue(file, RootFactory.TYPE_PROPERTY, namePrefix + " @dir", dir);
+                        	Configuration.enqueue(threadDatabase, file, RootFactory.TYPE_PROPERTY, namePrefix + " @dir", dir);
                         }
                         String fileAtt = getAttributeValue(atts, "file");
                         if (fileAtt != null) {
-                        	Configuration.enqueue(file, RootFactory.TYPE_PROPERTY, namePrefix + " @file", fileAtt);
+                        	Configuration.enqueue(threadDatabase, file, RootFactory.TYPE_PROPERTY, namePrefix + " @file", fileAtt);
                         }
                     }
                 }
@@ -133,10 +135,10 @@ public class XConfFileExplorer implements Explorer {
     }
 
     @Override
-    public void explore(Explorable what, ExplorableFactory factory) throws ExplorationException {
+    public void explore(Database threadDatabase, Explorable what, ExplorableFactory factory) throws ExplorationException {
         try {
         	XConfFile file = (XConfFile) what;
-            XConfParser handler = new XConfParser(file);
+            XConfParser handler = new XConfParser(file, threadDatabase);
             parserFactory.newSAXParser().parse(file.getPath(), handler);
         } catch (Exception ex) {
             throw new ExplorationException(ex);

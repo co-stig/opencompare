@@ -1,13 +1,12 @@
 package org.opencompare.explorable.files;
 
 import java.io.File;
+import java.util.Arrays;
 
-import org.opencompare.database.Database;
 import org.opencompare.explorable.Configuration;
 import org.opencompare.explorable.Explorable;
 import org.opencompare.explorable.ExplorableFactory;
 import org.opencompare.explore.ExplorationException;
-import org.opencompare.explore.ExplorationQueue;
 
 public class FileFactory implements ExplorableFactory {
 	
@@ -23,11 +22,11 @@ public class FileFactory implements ExplorableFactory {
 	private SimpleFile newFile(int parentId, File path) throws ExplorationException {
 		String filename = path.getName().toLowerCase();
 		if (filename.endsWith(".properties") || filename.endsWith(".rbinfo")) {
-			return new PropertiesFile(Configuration.getDatabase().nextId(), parentId, path);
+			return new PropertiesFile(Configuration.getSharedDatabase().nextId(), parentId, path);
 		} else if (filename.endsWith(".xconf")) {
-			return new XConfFile(Configuration.getDatabase().nextId(), parentId, path);
+			return new XConfFile(Configuration.getSharedDatabase().nextId(), parentId, path);
 		} else {
-			return new SimpleFile(Configuration.getDatabase().nextId(), parentId, path);
+			return new SimpleFile(Configuration.getSharedDatabase().nextId(), parentId, path);
 		}
 	}
 
@@ -51,7 +50,7 @@ public class FileFactory implements ExplorableFactory {
 	 * phase.
 	 */
 	private Folder newFolder(int parentId, File path) throws ExplorationException {
-		return newFolder(Configuration.getDatabase().nextId(), parentId, path, null);
+		return newFolder(Configuration.getSharedDatabase().nextId(), parentId, path, null);
 	}
 
 	/**
@@ -64,18 +63,26 @@ public class FileFactory implements ExplorableFactory {
 
 	@Override
 	public Explorable newExplorable(String type, int id, int parentId, String relativeId, String value, long hash, String sha) throws ExplorationException {
+		System.out.println("org.opencompare.explorable.files.FileFactory.newExplorable1(" + type + ", " + id + ", " + parentId + ", " + relativeId + ", " + value + ", " + hash + ", " + sha + ")");
 		if (type.equals(TYPE_FOLDER)) {
 			return newFolder(id, parentId, new File(relativeId), sha);
 		} else if (type.equals(TYPE_PROPERTIES) || type.equals(TYPE_XCONF) || type.equals(TYPE_SIMPLE)) {
 			return newFile(id, parentId, new File(relativeId), hash, sha);
 		} else {
-			return null;
+			throw new ExplorationException("Unsupported type: " + type);
 		}
 	}
 
 	@Override
 	public Explorable newExplorable(Explorable origin, String type, Object... params) throws ExplorationException {
-		return null;
+		System.out.println("org.opencompare.explorable.files.FileFactory.newExplorable2(" + origin + ", " + type + ", " + Arrays.toString(params) + ")");
+		if (type.equals(TYPE_FOLDER)) {
+			return newFolder(origin.getId(), (File) params[0]);
+		} else if (type.equals(TYPE_PROPERTIES) || type.equals(TYPE_XCONF) || type.equals(TYPE_SIMPLE)) {
+			return newFile(origin.getId(), (File) params[0]);
+		} else {
+			throw new ExplorationException("Unsupported type: " + type);
+		}
 	}
 	
 }

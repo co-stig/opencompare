@@ -94,7 +94,7 @@ class JdbcConflictsDatabase extends AbstractJdbcDatabase {
     private void openConnection(String name) throws ClassNotFoundException, SQLException {
     	System.out.println("Opening connection " + getSnapshot());
     	
-        System.setProperty("derby.system.home", DatabaseManager.getDbFolder());
+        System.setProperty("derby.system.home", JdbcDatabaseManager.getDbFolder());
         Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
         connection = DriverManager.getConnection("jdbc:derby:" + name + ";create=true");
     }

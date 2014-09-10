@@ -2,6 +2,7 @@ package org.opencompare.explorers.files;
 
 import java.io.File;
 
+import org.opencompare.database.Database;
 import org.opencompare.explorable.Configuration;
 import org.opencompare.explorable.Explorable;
 import org.opencompare.explorable.ExplorableFactory;
@@ -15,7 +16,7 @@ import org.opencompare.explorers.Explores;
 public class FolderExplorer implements Explorer {
 
     @Override
-	public void explore(Explorable what, ExplorableFactory factory) throws ExplorationException {
+	public void explore(Database threadDatabase, Explorable what, ExplorableFactory factory) throws ExplorationException {
     	Folder folder = (Folder) what;
     	
 		try {
@@ -23,6 +24,7 @@ public class FolderExplorer implements Explorer {
 			if (files != null) { // Yes, it can be null under Windows for virtual folders like "My Music"
 				for (File child : files) {
 					Configuration.enqueue(
+							threadDatabase,
 							folder, 
 							child.isDirectory() ? Folder.class.getSimpleName() : SimpleFile.class.getSimpleName(), 
 							child

@@ -75,7 +75,7 @@ public class JdbcExplorablesDatabase extends AbstractJdbcDatabase {
     private void openConnection(String name) throws ClassNotFoundException, SQLException {
     	System.out.println("Opening connection " + getSnapshot());
 
-    	System.setProperty("derby.system.home", DatabaseManager.getDbFolder());
+    	System.setProperty("derby.system.home", JdbcDatabaseManager.getDbFolder());
         Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
         connection = DriverManager.getConnection("jdbc:derby:" + name + ";create=true");
     }
@@ -96,7 +96,7 @@ public class JdbcExplorablesDatabase extends AbstractJdbcDatabase {
      * Also here we have access to temporary full ID and its SHA.
      */
     public void add(Explorable e) throws ExplorationException {
-    	addExplorable(e, stmtInsertExplorable);
+		addExplorable(e, stmtInsertExplorable);
     }
     
     public void addReference(Explorable e) throws ExplorationException {
@@ -142,7 +142,25 @@ public class JdbcExplorablesDatabase extends AbstractJdbcDatabase {
             stmtInsertExplorable.setString(6, type);				// type
             stmtInsertExplorable.setString(7, e.getSha());			// SHA
             stmtInsertExplorable.executeUpdate();
+
+            System.out.println(
+        			"Inserted Explorable into database: id = " + e.getId() + 
+    				", relativeId = " + relativeId + 
+    				", parentId = " + e.getParentId() + 
+    				", value = " + value + 
+    				", hash = " + e.getValueHashCode() + 
+    				", type = " + type +
+    				", SHA = " + e.getSha());
         } catch (SQLException ex) {
+            System.out.println(
+        			"FAILED to insert Explorable into database: id = " + e.getId() + 
+    				", relativeId = " + relativeId + 
+    				", parentId = " + e.getParentId() + 
+    				", value = " + value + 
+    				", hash = " + e.getValueHashCode() + 
+    				", type = " + type +
+    				", SHA = " + e.getSha());
+        	
             throw new ExplorationException("Unable to insert explorable to database: " + e, ex);
         }
     }
@@ -230,7 +248,7 @@ public class JdbcExplorablesDatabase extends AbstractJdbcDatabase {
                 rs.next();
                 return rs.getInt(1);
             } finally {
-                rs.close();
+                rs.close();		// TODO: Occasionally got an NPE here
             }
         } catch (SQLException ex) {
             throw new ExplorationException("Unable to get files count from the database", ex);

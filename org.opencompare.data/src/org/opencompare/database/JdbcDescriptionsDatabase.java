@@ -24,7 +24,7 @@ import org.opencompare.explore.ExplorationException;
  * This connection won't be shared between multiple threads, so its methods
  * don't have to be synchronized.
  */
-public class JdbcDescriptionsDatabase extends AbstractJdbcDatabase {
+public class JdbcDescriptionsDatabase extends AbstractJdbcDatabase implements DescriptionsDatabase {
 
     private static final String DESCRIPTION = Description.class.getSimpleName();
 
@@ -84,7 +84,7 @@ public class JdbcDescriptionsDatabase extends AbstractJdbcDatabase {
     private void openConnection(String name, boolean create) throws ClassNotFoundException, SQLException {
     	System.out.println("Opening connection " + getSnapshot());
     	
-        System.setProperty("derby.system.home", DatabaseManager.getDbFolder());
+        System.setProperty("derby.system.home", JdbcDatabaseManager.getDbFolder());
         Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
         connection = DriverManager.getConnection("jdbc:derby:" + name + ";create=" + create);
     }

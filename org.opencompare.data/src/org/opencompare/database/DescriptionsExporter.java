@@ -214,7 +214,7 @@ public class DescriptionsExporter {
 	}
 
 	public static void main(String[] args) throws ExplorationException, SAXException, IOException, ParserConfigurationException, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
-		DescriptionsExporter de = new DescriptionsExporter(DatabaseManager.newDescriptionsConnection());
+		DescriptionsExporter de = new DescriptionsExporter((JdbcDescriptionsDatabase) DatabaseManagerFactory.get().newDescriptionsConnection());
 		de.importFromXml(new File("c:\\db\\update.xml"));
 	}
 }

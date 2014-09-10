@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import org.opencompare.database.Database;
 import org.opencompare.explorable.Configuration;
 import org.opencompare.explorable.Explorable;
 import org.opencompare.explorable.ExplorableFactory;
@@ -18,7 +19,7 @@ import org.opencompare.explorers.Explorer;
 public class PropertiesFileExplorer implements Explorer {
 
     @Override
-	public void explore(Explorable what, ExplorableFactory factory) throws ExplorationException, InterruptedException {
+	public void explore(Database threadDatabase, Explorable what, ExplorableFactory factory) throws ExplorationException, InterruptedException {
     	PropertiesFile file = (PropertiesFile) what;
     	
 		Properties p = new Properties();
@@ -36,7 +37,7 @@ public class PropertiesFileExplorer implements Explorer {
 		
 		for (Entry<Object, Object> e: p.entrySet()) {
 			// Here cast to String is perfectly safe, according to Properties specification
-			Configuration.enqueue(file, RootFactory.TYPE_PROPERTY, (String) e.getKey(), (String) e.getValue());
+			Configuration.enqueue(threadDatabase, file, RootFactory.TYPE_PROPERTY, (String) e.getKey(), (String) e.getValue());
 		}
 	}
     
