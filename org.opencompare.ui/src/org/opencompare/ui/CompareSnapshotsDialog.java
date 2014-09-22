@@ -35,12 +35,12 @@ public class CompareSnapshotsDialog extends javax.swing.JDialog implements WithP
         Snapshot[] snapshots = DatabaseManagerFactory.get().listSnapshots();
         List<Snapshot> snapshotsList = Arrays.asList(snapshots);
         
-        selectReferenceSnapshot.setModel(new DefaultComboBoxModel(snapshots));
+        selectReferenceSnapshot.setModel(new DefaultComboBoxModel<Snapshot>(snapshots));
         if (referenceSelect != null && snapshotsList.contains(referenceSelect)) {
             selectReferenceSnapshot.setSelectedItem(referenceSelect);
         }
         
-        selectActualSnapshot.setModel(new DefaultComboBoxModel(snapshots));
+        selectActualSnapshot.setModel(new DefaultComboBoxModel<Snapshot>(snapshots));
         if (selectedSnapshot != null && snapshotsList.contains(selectedSnapshot)) {
             selectReferenceSnapshot.setSelectedItem(selectedSnapshot);
         }
@@ -65,8 +65,8 @@ public class CompareSnapshotsDialog extends javax.swing.JDialog implements WithP
         buttonNewActualSnapshot = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         editConflictSnapshot = new javax.swing.JTextField();
-        selectReferenceSnapshot = new javax.swing.JComboBox();
-        selectActualSnapshot = new javax.swing.JComboBox();
+        selectReferenceSnapshot = new javax.swing.JComboBox<Snapshot>();
+        selectActualSnapshot = new javax.swing.JComboBox<Snapshot>();
         labelCompareStatus = new javax.swing.JLabel();
         comparisonProgress = new javax.swing.JProgressBar();
 
@@ -116,9 +116,9 @@ public class CompareSnapshotsDialog extends javax.swing.JDialog implements WithP
 
         jLabel1.setText("Conflict snapshot");
 
-        selectReferenceSnapshot.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        selectReferenceSnapshot.setModel(new javax.swing.DefaultComboBoxModel<Snapshot>(new Snapshot[] { }));
 
-        selectActualSnapshot.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        selectActualSnapshot.setModel(new javax.swing.DefaultComboBoxModel<Snapshot>(new Snapshot[] { }));
 
         labelCompareStatus.setText("Comparing objects");
 
@@ -246,8 +246,8 @@ public class CompareSnapshotsDialog extends javax.swing.JDialog implements WithP
     private javax.swing.JLabel labelImage;
     private javax.swing.JLabel labelReferenceSnapshot;
     private javax.swing.JLabel labelTitle;
-    private javax.swing.JComboBox selectActualSnapshot;
-    private javax.swing.JComboBox selectReferenceSnapshot;
+    private javax.swing.JComboBox<Snapshot> selectActualSnapshot;
+    private javax.swing.JComboBox<Snapshot> selectReferenceSnapshot;
     private javax.swing.JSeparator separator;
     // End of variables declaration//GEN-END:variables
 

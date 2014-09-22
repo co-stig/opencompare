@@ -33,7 +33,7 @@ public class ExploreApplication {
 
     	Snapshot newDatabase = dbm.createExplorablesDatabase(snapshotName);
     	
-        Database rootConnection = dbm.newExplorablesConnection(newDatabase);
+        Database rootConnection = dbm.newExplorablesConnection(newDatabase);	// TODO: This is only used to enqueue the Root
 
         System.out.print("Estimating size: ");
         int estimatedSize = 1000;	// TODO: Create good estimation (add to Explorer interface?)
@@ -49,7 +49,7 @@ public class ExploreApplication {
             // Apache Derby recommends using one connection per thread, its
             // multithreading semantics is not intuitive.
             Database database = dbm.newExplorablesConnection(newDatabase);
-            new ExploringThread(queue, database, null).start();	// TODO: Supply real factory here (not null)
+            new ExploringThread(queue, database).start();
         }
 
         Database progressDb = dbm.newExplorablesConnection(newDatabase);
@@ -89,13 +89,15 @@ public class ExploreApplication {
     	
         Database referenceDb = dbm.newExplorablesConnection(referenceSnapshot);
         Database actualDb = dbm.newExplorablesConnection(actualSnapshot);
-
+        
         System.out.print("Estimating size: ");
         int estimatedSize = Math.max(referenceDb.size(), actualDb.size());
         System.out.println(estimatedSize);
 
         Snapshot newDatabase = dbm.createConflictsDatabase(conflictSnapshotName);
         Database conflictDb = dbm.newConflictsConnection(newDatabase);
+        Configuration.initialize(null, conflictDb);
+
         Database progressDb = dbm.newConflictsConnection(newDatabase);
         
         newDatabase.setState(Snapshot.State.InProgress);
@@ -124,17 +126,4 @@ public class ExploreApplication {
         return newDatabase;
     }
 
-    public static void main(String[] args) throws InterruptedException, ExplorationException, IOException {
-    	WithProgress dummyProgress = new WithProgress() {
-			public void start() { System.out.println("Started"); }
-			public void setValue(int value) { }
-			public void setMaximum(int max) { }
-			public void complete(boolean success) { System.out.println("Completed successfully: " + success); }
-		};
-    	
-    	Snapshot ref = explore("reffolder", "ref", dummyProgress);
-    	Snapshot actual = explore("actualfolder", "actual", dummyProgress);
-		compare(ref, actual, "conf", dummyProgress);
-	}
-    
 }

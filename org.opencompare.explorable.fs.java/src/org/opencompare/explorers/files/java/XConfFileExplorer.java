@@ -1,4 +1,4 @@
-package org.opencompare.explorers.files;
+package org.opencompare.explorers.files.java;
 
 import java.io.ByteArrayInputStream;
 
@@ -7,16 +7,17 @@ import javax.xml.parsers.SAXParserFactory;
 import org.opencompare.database.Database;
 import org.opencompare.explorable.Configuration;
 import org.opencompare.explorable.Explorable;
-import org.opencompare.explorable.ExplorableFactory;
 import org.opencompare.explorable.RootFactory;
-import org.opencompare.explorable.files.XConfFile;
+import org.opencompare.explorable.files.java.XConfFile;
 import org.opencompare.explore.ExplorationException;
 import org.opencompare.explorers.Explorer;
+import org.opencompare.explorers.Explores;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+@Explores(XConfFile.class)
 public class XConfFileExplorer implements Explorer {
 
     private static final SAXParserFactory parserFactory = SAXParserFactory.newInstance();     // Hopefully SAXParserFactory is multithreaded
@@ -135,7 +136,7 @@ public class XConfFileExplorer implements Explorer {
     }
 
     @Override
-    public void explore(Database threadDatabase, Explorable what, ExplorableFactory factory) throws ExplorationException {
+    public void explore(Database threadDatabase, Explorable what) throws ExplorationException {
         try {
         	XConfFile file = (XConfFile) what;
             XConfParser handler = new XConfParser(file, threadDatabase);

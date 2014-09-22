@@ -1,25 +1,24 @@
 package org.opencompare.explore;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.opencompare.database.Database;
 import org.opencompare.explorable.Configuration;
 import org.opencompare.explorable.Explorable;
-import org.opencompare.explorable.ExplorableFactory;
 import org.opencompare.explorable.ThreadControllExplorable;
+import org.opencompare.explorers.Explorer;
 
 public class ExploringThread extends Thread {
 
     public static final AtomicInteger exploringCount = new AtomicInteger(0);
     private final ExplorationQueue queue;
     private final Database database;
-    private final ExplorableFactory factory; 
 
-    public ExploringThread(ExplorationQueue queue, Database database, ExplorableFactory factory) {
+    public ExploringThread(ExplorationQueue queue, Database database) {
         this.queue = queue;
         this.database = database;
-        this.factory = factory;
     }
 
     public void run() {
@@ -48,8 +47,12 @@ public class ExploringThread extends Thread {
                 try {
                     
                 	String clazz = parent.getClass().getSimpleName();
-                	Configuration.getExplorerFactory(clazz).getExplorer(clazz).explore(database, parent, factory);
-                    
+
+                	List<Explorer> explorers = Configuration.getExplorers(clazz);
+                	for (Explorer explorer: explorers) {
+                		explorer.explore(database, parent);
+                	}
+                	
                 } catch (InterruptedException e) {
                     break;
                 } catch (ExplorationException e) {

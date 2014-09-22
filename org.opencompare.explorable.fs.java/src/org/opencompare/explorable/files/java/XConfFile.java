@@ -1,7 +1,8 @@
-package org.opencompare.explorable.files;
+package org.opencompare.explorable.files.java;
 
 import java.io.File;
 
+import org.opencompare.explorable.files.SimpleFile;
 import org.opencompare.explore.ExplorationException;
 
 public class XConfFile extends SimpleFile {

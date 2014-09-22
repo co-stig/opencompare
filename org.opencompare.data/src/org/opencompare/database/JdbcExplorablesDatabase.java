@@ -188,7 +188,7 @@ public class JdbcExplorablesDatabase extends AbstractJdbcDatabase {
         String type = rs.getString(6);
         String sha = rs.getString(7);
 
-        return Configuration.getExplorableFactory(type).newExplorable(type, id, parentId, relativeId, value, hash, sha);
+        return Configuration.createExplorable(type, id, parentId, relativeId, value, hash, sha);
     }
 
     public List<Explorable> getChildren(Explorable parent) throws ExplorationException {

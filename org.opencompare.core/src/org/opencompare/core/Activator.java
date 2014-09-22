@@ -7,7 +7,8 @@ import org.opencompare.explorable.Property;
 import org.opencompare.explorable.Root;
 import org.opencompare.explorable.RootFactory;
 import org.opencompare.explorable.ThreadControllExplorable;
-import org.opencompare.explorers.core.CoreExplorersFactory;
+import org.opencompare.explorers.core.NoExplorer;
+import org.opencompare.explorers.core.RootExplorer;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -35,13 +36,13 @@ public class Activator implements BundleActivator {
 		Configuration.registerExplorableFactory(Conflict.class.getSimpleName(), rootFactory);
 		Configuration.registerExplorableFactory(Description.class.getSimpleName(), rootFactory);
 
-		CoreExplorersFactory coreExplorersFactory = new CoreExplorersFactory();
+		NoExplorer noExplorer = new NoExplorer();
 		
-		Configuration.registerExplorerFactory(Root.class.getSimpleName(), coreExplorersFactory);
-		Configuration.registerExplorerFactory(Property.class.getSimpleName(), coreExplorersFactory);
-		Configuration.registerExplorerFactory(Conflict.class.getSimpleName(), coreExplorersFactory);
-		Configuration.registerExplorerFactory(Description.class.getSimpleName(), coreExplorersFactory);
-		Configuration.registerExplorerFactory(ThreadControllExplorable.class.getSimpleName(), coreExplorersFactory);
+		Configuration.registerExplorer(Root.class.getSimpleName(), new RootExplorer());
+		Configuration.registerExplorer(Property.class.getSimpleName(), noExplorer);
+		Configuration.registerExplorer(Conflict.class.getSimpleName(), noExplorer);
+		Configuration.registerExplorer(Description.class.getSimpleName(), noExplorer);
+		Configuration.registerExplorer(ThreadControllExplorable.class.getSimpleName(), noExplorer);
 		
 		System.out.println("Initializing core factories: FINISH");
 	}

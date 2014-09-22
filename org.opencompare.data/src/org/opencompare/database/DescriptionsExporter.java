@@ -166,8 +166,8 @@ public class DescriptionsExporter {
 
 		Description newDesc = 
 				parent == null ? 
-				(Description) Configuration.getExplorableFactory(DESCRIPTION).newExplorable(DESCRIPTION, 1, parentId, relativeId, value, value.hashCode(), null) : 
-				(Description) Configuration.getExplorableFactory(DESCRIPTION).newExplorable(parent, DESCRIPTION, parentId, relativeId, value);
+				(Description) Configuration.createExplorable(DESCRIPTION, 1, parentId, relativeId, value, value.hashCode(), null) : 
+				(Description) Configuration.createExplorable(parent, DESCRIPTION, parentId, relativeId, value);
 				
 		newDesc.calculateSha(parent == null ? null : parent.getTempFullId());
 

@@ -9,4 +9,6 @@ Import-Package: org.opencompare.database,
  org.opencompare.explorable,
  org.opencompare.explore,
  org.opencompare.explorers,
+ org.opencompare.explorers.core,
  org.osgi.framework;version="1.3.0"
+Export-Package: org.opencompare.explorable.files

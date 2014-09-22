@@ -210,7 +210,7 @@ public class JdbcDescriptionsDatabase extends AbstractJdbcDatabase implements De
 		String value = clob.getSubString(1, (int) clob.length());
         String sha = rs.getString(5);
         
-        return (Description) Configuration.getExplorableFactory(DESCRIPTION).newExplorable(DESCRIPTION, id, parentId, relativeId, value, value.hashCode(), sha);
+        return (Description) Configuration.createExplorable(DESCRIPTION, id, parentId, relativeId, value, value.hashCode(), sha);
     }
 
     public List<Explorable> getChildren(Explorable parent) throws ExplorationException {

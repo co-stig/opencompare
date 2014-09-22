@@ -13,4 +13,5 @@ Export-Package: org.opencompare,
  org.opencompare.explorable,
  org.opencompare.explore,
  org.opencompare.explorers,
+ org.opencompare.explorers.core,
  org.opencompare.external

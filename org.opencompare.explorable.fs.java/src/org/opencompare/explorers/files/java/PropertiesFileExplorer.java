@@ -1,4 +1,4 @@
-package org.opencompare.explorers.files;
+package org.opencompare.explorers.files.java;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
@@ -10,16 +10,17 @@ import java.util.Properties;
 import org.opencompare.database.Database;
 import org.opencompare.explorable.Configuration;
 import org.opencompare.explorable.Explorable;
-import org.opencompare.explorable.ExplorableFactory;
 import org.opencompare.explorable.RootFactory;
-import org.opencompare.explorable.files.PropertiesFile;
+import org.opencompare.explorable.files.java.PropertiesFile;
 import org.opencompare.explore.ExplorationException;
 import org.opencompare.explorers.Explorer;
+import org.opencompare.explorers.Explores;
 
+@Explores(PropertiesFile.class)
 public class PropertiesFileExplorer implements Explorer {
 
     @Override
-	public void explore(Database threadDatabase, Explorable what, ExplorableFactory factory) throws ExplorationException, InterruptedException {
+	public void explore(Database threadDatabase, Explorable what) throws ExplorationException, InterruptedException {
     	PropertiesFile file = (PropertiesFile) what;
     	
 		Properties p = new Properties();

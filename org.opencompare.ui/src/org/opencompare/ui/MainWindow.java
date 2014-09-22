@@ -17,6 +17,7 @@ import org.jdesktop.swingx.JXTreeTable;
 import org.opencompare.ExploreApplication;
 import org.opencompare.Snapshot;
 import org.opencompare.WithProgress;
+import org.opencompare.database.Database;
 import org.opencompare.database.DatabaseManagerFactory;
 import org.opencompare.database.DescriptionsDatabase;
 import org.opencompare.explorable.Explorable;
@@ -382,7 +383,7 @@ public class MainWindow extends javax.swing.JFrame implements WithProgress {
             }
         }
         
-        final DescriptionsDatabase database = (DescriptionsDatabase) DatabaseManagerFactory.get().newConnection(snapshot);
+        final Database database = DatabaseManagerFactory.get().newConnection(snapshot);
         
         ExplorableTreeTableModel model;
         if (snapshot.getType() == Snapshot.Type.Conflicts) {

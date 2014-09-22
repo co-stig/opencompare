@@ -230,7 +230,7 @@ class JdbcConflictsDatabase extends AbstractJdbcDatabase {
         	int rParentId = rs.getInt(10);
         	String rSha = rs.getString(11);
         	
-        	reference = Configuration.getExplorableFactory(rType).newExplorable(rType, rId, rParentId, rRelativeId, rValue, rHash, rSha);
+        	reference = Configuration.createExplorable(rType, rId, rParentId, rRelativeId, rValue, rHash, rSha);
         }
         
         Explorable actual = null;
@@ -243,10 +243,10 @@ class JdbcConflictsDatabase extends AbstractJdbcDatabase {
 	        int aParentId = rs.getInt(17);
 	        String aSha = rs.getString(18);
 	        
-	        actual = Configuration.getExplorableFactory(aType).newExplorable(aType, aId, aParentId, aRelativeId, aValue, aHash, aSha);
+	        actual = Configuration.createExplorable(aType, aId, aParentId, aRelativeId, aValue, aHash, aSha);
         }
         
-        return Configuration.getExplorableFactory(CONFLICT).newExplorable(null, CONFLICT, id, parentId, reference, actual, type, comment);
+        return Configuration.createExplorable(null, CONFLICT, id, parentId, reference, actual, type, comment);
     }
 
     public List<Explorable> getChildren(Explorable parent) throws ExplorationException {

@@ -34,28 +34,33 @@ public class CompareThread extends StoppableThread {
     }
 
     private Conflict compareRecursive(Explorable reference, Explorable actual, Conflict parent) throws ExplorationException {
+    	System.out.println("compareRecursive(" + reference + ", " + actual + ", " + parent + ")");
         if (isStopped()) {
             throw new ExplorationException("The thread is stopped (comparison cancelled)");
         }
         
         Conflict res;
         int parentId = parent == null ? 0 : parent.getId();
+        int id = parent == null ? 1 : 0;
 
         if (actual == null && reference != null) {
             // Add reference children recursively
-            res = (Conflict) Configuration.getExplorableFactory(CONFLICT).newExplorable(parent, CONFLICT, parentId, reference, null, ConflictType.Missing, null);
+            res = (Conflict) Configuration.createExplorable(parent, CONFLICT, id, parentId, reference, null, ConflictType.Missing, null);
+            System.out.println(" * ANR created conflict: " + res);
             for (Explorable referenceChild : referenceDatabase.getChildren(reference)) {
                 compareRecursive(referenceChild, null, res);
             }
         } else if (actual != null && reference == null) {
             // Add actual children recursively 
-            res = (Conflict) Configuration.getExplorableFactory(CONFLICT).newExplorable(parent, CONFLICT, parentId, null, actual, ConflictType.New, null);
+            res = (Conflict) Configuration.createExplorable(parent, CONFLICT, id, parentId, null, actual, ConflictType.New, null);
+            System.out.println(" * ARN created conflict: " + res);
             for (Explorable actualChild : actualDatabase.getChildren(actual)) {
                 compareRecursive(null, actualChild, res);
             }
         } else if (actual != null && reference != null) {
         	// Add actual children recursively 
-       		res = (Conflict) Configuration.getExplorableFactory(CONFLICT).newExplorable(parent, CONFLICT, reference, actual, null, null);
+       		res = (Conflict) Configuration.createExplorable(parent, CONFLICT, id, parentId, reference, actual, null, null);
+       		System.out.println(" * AR created conflict: " + res);
             ConflictType childrenConflictType = compareBothRecursive(reference, actual, res);
             res.setType(childrenConflictType);
         } else {

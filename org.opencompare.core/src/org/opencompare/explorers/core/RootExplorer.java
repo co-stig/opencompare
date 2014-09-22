@@ -3,7 +3,6 @@ package org.opencompare.explorers.core;
 import org.opencompare.database.Database;
 import org.opencompare.explorable.Configuration;
 import org.opencompare.explorable.Explorable;
-import org.opencompare.explorable.ExplorableFactory;
 import org.opencompare.explorable.Root;
 import org.opencompare.explore.ExplorationException;
 import org.opencompare.explorers.Explorer;
@@ -12,9 +11,8 @@ import org.opencompare.explorers.Explores;
 @Explores(Root.class)
 public class RootExplorer implements Explorer {
 
-	// TODO: Invert the control, so that the 
     @Override
-	public void explore(Database threadDatabase, Explorable what, ExplorableFactory factory) throws ExplorationException {
+	public void explore(Database threadDatabase, Explorable what) throws ExplorationException {
     	Root root = (Root) what;
     	
     	try {

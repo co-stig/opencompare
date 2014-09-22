@@ -1,20 +1,24 @@
 package org.opencompare.explorable;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.opencompare.database.Database;
 import org.opencompare.explore.ExplorationException;
 import org.opencompare.explore.ExplorationQueue;
-import org.opencompare.explorers.ExplorerFactory;
+import org.opencompare.explorers.Explorer;
 
 public abstract class Configuration {
 
 	private static ExplorationQueue explorationQueue;
 	private static Database sharedDatabase;
+	
 	private static final Map<String, LinkedList<ExplorableFactory>> EXPLORABLE_FACTORIES = new HashMap<String, LinkedList<ExplorableFactory>>();
-	private static final Map<String, LinkedList<ExplorerFactory>> EXPLORER_FACTORIES = new HashMap<String, LinkedList<ExplorerFactory>>();
+	private static final Map<String, LinkedList<Explorer>> EXPLORERS = new HashMap<String, LinkedList<Explorer>>();
 	
 	public static void registerExplorableFactory(String type, ExplorableFactory factory) {
 		synchronized(EXPLORABLE_FACTORIES) {
@@ -41,58 +45,50 @@ public abstract class Configuration {
 		}
 	}
 	
-	public static void registerExplorerFactory(String type, ExplorerFactory factory) {
-		synchronized(EXPLORER_FACTORIES) {
-			LinkedList<ExplorerFactory> factories = EXPLORER_FACTORIES.get(type);
-			if (factories == null) {
-				factories = new LinkedList<ExplorerFactory>();
+	public static void registerExplorer(String type, Explorer explorer) {
+		synchronized(EXPLORERS) {
+			LinkedList<Explorer> explorers = EXPLORERS.get(type);
+			if (explorers == null) {
+				explorers = new LinkedList<Explorer>();
 			}
-			factories.push(factory);
-			EXPLORER_FACTORIES.put(type, factories);
+			explorers.push(explorer);
+			EXPLORERS.put(type, explorers);
 		}
 	}
 	
-	public static void unregisterExplorerFactory(String type, ExplorerFactory factory) {
-		synchronized(EXPLORER_FACTORIES) {
-			LinkedList<ExplorerFactory> factories = EXPLORER_FACTORIES.get(type);
-			if (factories != null) {
-				while (factories.remove(factory)) {
+	public static void unregisterExplorer(String type, Explorer explorer) {
+		synchronized(EXPLORERS) {
+			LinkedList<Explorer> explorers = EXPLORERS.get(type);
+			if (explorers != null) {
+				while (explorers.remove(explorer)) {
 					// Remove all
 				}
-				if (factories.isEmpty()) {
-					EXPLORER_FACTORIES.remove(factories);
+				if (explorers.isEmpty()) {
+					EXPLORERS.remove(explorers);
 				}
 			}
 		}
 	}
 	
-	public static ExplorableFactory getExplorableFactory(String type) throws ExplorationException {
-		synchronized(EXPLORABLE_FACTORIES) {
-			LinkedList<ExplorableFactory> factories = EXPLORABLE_FACTORIES.get(type);
-			if (factories != null && !factories.isEmpty()) {
-				return factories.peek();
+	public static List<Explorer> getExplorers(String type) throws ExplorationException {
+		synchronized(EXPLORERS) {
+			LinkedList<Explorer> explorers = EXPLORERS.get(type);
+			if (explorers != null && !explorers.isEmpty()) {
+				if (explorers.size() == 1) {
+					return Collections.singletonList(explorers.peek());
+				} else {
+					return new ArrayList<Explorer>(explorers);
+				}
 			}
-			throw new ExplorationException("No explorable factory is registered for type '" + type + "'. Registered factories: " + EXPLORABLE_FACTORIES);
+			throw new ExplorationException("No explorers are registered for type '" + type + "'. Registered explorers: " + EXPLORERS);
 		}
 	}
 
-	public static ExplorerFactory getExplorerFactory(String type) throws ExplorationException {
-		synchronized(EXPLORER_FACTORIES) {
-			LinkedList<ExplorerFactory> factories = EXPLORER_FACTORIES.get(type);
-			if (factories != null && !factories.isEmpty()) {
-				return factories.peek();
-			}
-			throw new ExplorationException("No explorer factory is registered for type '" + type + "'. Registered factories: " + EXPLORER_FACTORIES);
-		}
-	}
 	
 	// TODO: Do something with this ugly "threadDatabase"
-	public static void enqueue(Database threadDatabase, Explorable origin, String type, Object... params) throws InterruptedException, ExplorationException {
-		// 0. Find a suitable factory for this object type
-		ExplorableFactory factory = getExplorableFactory(type);
-		
-		// 1. Actually create this new Explorable, based on type and params. Use subfactories.
-		Explorable e = factory.newExplorable(origin, type, params);
+	// TODO: This method (together with getExplorableFactory) probably doesn't belong to the Configuration class
+	public static Explorable enqueue(Database threadDatabase, Explorable origin, String type, Object... params) throws InterruptedException, ExplorationException {
+		Explorable e = createExplorable(origin, type, params);
 		
 		// 1.b. Calculate SHA
 		e.calculateSha(origin.getTempFullId());
@@ -103,8 +99,46 @@ public abstract class Configuration {
 		
 		// 3. Enqueue
 		explorationQueue.add(e);
+		
+		return e;
 	}
 
+	// Used during exploration
+	public static Explorable createExplorable(Explorable origin, String type, Object... params) throws ExplorationException {
+		// Iterate through the available factories and try to create new explorable. Return the first suitable one.
+		synchronized(EXPLORABLE_FACTORIES) {
+			LinkedList<ExplorableFactory> factories = EXPLORABLE_FACTORIES.get(type);
+			if (factories != null && !factories.isEmpty()) {
+				for (ExplorableFactory factory: factories) {
+					System.out.println("For type " + type + ": checking factory " + factory + " out of " + factories);
+					Explorable e = factory.createExplorable(origin, type, params);
+					if (e != null) {
+						return e;
+					}
+				}
+			}
+			throw new ExplorationException("No explorable factory is registered for type '" + type + "'. Registered factories: " + EXPLORABLE_FACTORIES);
+		}
+	}
+
+	// Used for UI
+	public static Explorable createExplorable(String type, int id, int parentId, String relativeId, String value, long hash, String sha) throws ExplorationException {
+		// Iterate through the available factories and try to create new explorable. Return the first suitable one.
+		synchronized(EXPLORABLE_FACTORIES) {
+			LinkedList<ExplorableFactory> factories = EXPLORABLE_FACTORIES.get(type);
+			if (factories != null && !factories.isEmpty()) {
+				for (ExplorableFactory factory: factories) {
+					System.out.println("For type " + type + ": checking factory " + factory + " out of " + factories);
+					Explorable e = factory.parseExplorable(type, id, parentId, relativeId, value, hash, sha);
+					if (e != null) {
+						return e;
+					}
+				}
+			}
+			throw new ExplorationException("No explorable factory is registered for type '" + type + "'. Registered factories: " + EXPLORABLE_FACTORIES);
+		}
+	}
+	
 	public static ExplorationQueue getQueue() {
 		return explorationQueue;
 	}
