@@ -1,24 +1,28 @@
 package org.opencompare.explorable;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
 
 import org.opencompare.database.Database;
 import org.opencompare.explore.ExplorationException;
-import org.opencompare.explore.ExplorationQueue;
 import org.opencompare.explorers.Explorer;
 
 public abstract class Configuration {
 
-	private static ExplorationQueue explorationQueue;
 	private static Database sharedDatabase;
 	
 	private static final Map<String, LinkedList<ExplorableFactory>> EXPLORABLE_FACTORIES = new HashMap<String, LinkedList<ExplorableFactory>>();
 	private static final Map<String, LinkedList<Explorer>> EXPLORERS = new HashMap<String, LinkedList<Explorer>>();
+	private static final Map<String, String> PROPERTIES = Collections.synchronizedMap(new HashMap<String, String>());
+	private static final List<Closeable> TO_BE_CLOSED = Collections.synchronizedList(new ArrayList<Closeable>());
 	
 	public static void registerExplorableFactory(String type, ExplorableFactory factory) {
 		synchronized(EXPLORABLE_FACTORIES) {
@@ -84,25 +88,6 @@ public abstract class Configuration {
 		}
 	}
 
-	
-	// TODO: Do something with this ugly "threadDatabase"
-	// TODO: This method (together with getExplorableFactory) probably doesn't belong to the Configuration class
-	public static Explorable enqueue(Database threadDatabase, Explorable origin, String type, Object... params) throws InterruptedException, ExplorationException {
-		Explorable e = createExplorable(origin, type, params);
-		
-		// 1.b. Calculate SHA
-		e.calculateSha(origin.getTempFullId());
-		
-		// 2. Store it in database, use thread connection
-		// TODO: This is wrong! We should have 1 DB connection per thread! NOT STATIC HERE (or one Configuration object per thread)
-		threadDatabase.add(e);
-		
-		// 3. Enqueue
-		explorationQueue.add(e);
-		
-		return e;
-	}
-
 	// Used during exploration
 	public static Explorable createExplorable(Explorable origin, String type, Object... params) throws ExplorationException {
 		// Iterate through the available factories and try to create new explorable. Return the first suitable one.
@@ -139,18 +124,69 @@ public abstract class Configuration {
 		}
 	}
 	
-	public static ExplorationQueue getQueue() {
-		return explorationQueue;
-	}
-
 	// So far this one is only used for generating unique IDs
 	public static Database getSharedDatabase() {
 		return sharedDatabase;
 	}
 	
 	// TODO: Extract a normal singleton instead
-	public static void initialize(ExplorationQueue q, Database d) {
-		explorationQueue = q;
+	public static void initialize(Database d) {
 		sharedDatabase = d;
+		TO_BE_CLOSED.clear(); 
 	}
+	
+	public static void saveConfiguration(Properties to) {
+		saveExplorableFactories(to);
+		saveExplorers(to);
+	}
+
+	private static void saveExplorableFactories(Properties to) {
+		for (Entry<String, LinkedList<ExplorableFactory>> entry: EXPLORABLE_FACTORIES.entrySet()) {
+			String type = entry.getKey();
+			int counter = 0;
+			for (ExplorableFactory factory: entry.getValue()) {
+				to.setProperty("explorablefactory-" + type + "-" + ++counter, factory.getClass().getName());
+			}			
+		}
+	}
+	
+	private static void saveExplorers(Properties to) {
+		for (Entry<String, LinkedList<Explorer>> entry: EXPLORERS.entrySet()) {
+			String type = entry.getKey();
+			int counter = 0;
+			for (Explorer explorer: entry.getValue()) {
+				to.setProperty("explorer-" + type + "-" + ++counter, explorer.getClass().getName());
+			}			
+		}
+	}
+
+	public static void setProperty(String name, String value) {
+		PROPERTIES.put(name, value);
+	}
+
+	public static String getProperty(String name) {
+		return PROPERTIES.get(name);
+	}
+	
+	public static void closeOnFinish(Closeable closeable) {
+		TO_BE_CLOSED.add(closeable);
+	}
+	
+	public static Map<Closeable, IOException> close() {
+		Map<Closeable, IOException> res = new HashMap<Closeable, IOException>();
+		
+		for (Closeable c: TO_BE_CLOSED) {
+			try {
+				System.out.println("Closing " + c);
+				c.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+				res.put(c, e);
+			}
+		}
+		
+		return res;
+	}
+	
+	
 }

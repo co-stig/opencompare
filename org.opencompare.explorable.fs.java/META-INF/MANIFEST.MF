@@ -4,7 +4,7 @@ Bundle-Name: FsJava
 Bundle-SymbolicName: org.opencompare.explorable.fs.java
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.opencompare.explorable.fs.java.Activator
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ClassPath: lib/gson-1.4.jar,
  lib/guava-11.0.2.jar,
  lib/javassist-3.12.1.GA.jar,
@@ -13,10 +13,12 @@ Bundle-ClassPath: lib/gson-1.4.jar,
  lib/slf4j-api-1.6.1.jar,
  lib/slf4j-simple-1.6.1.jar,
  .
-Import-Package: org.opencompare.database,
+Import-Package: org.xml.sax, 
+ org.xml.sax.helpers,
+ javax.xml.parsers,
+ org.opencompare.database,
  org.opencompare.explorable,
  org.opencompare.explore,
  org.opencompare.explorers,
- org.opencompare.explorers.core,
  org.osgi.framework;version="1.3.0"
 Require-Bundle: org.opencompare.explorable.fs

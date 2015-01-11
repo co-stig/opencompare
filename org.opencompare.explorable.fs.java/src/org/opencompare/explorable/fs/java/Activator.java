@@ -18,9 +18,9 @@ public class Activator implements BundleActivator {
 		
 		FileFactory fileFactory = new FileFactory();
 		
-		Configuration.registerExplorableFactory(SimpleFile.class.getSimpleName(), fileFactory);
 		Configuration.registerExplorableFactory(PropertiesFile.class.getSimpleName(), fileFactory);
 		Configuration.registerExplorableFactory(XConfFile.class.getSimpleName(), fileFactory);
+		Configuration.registerExplorableFactory(SimpleFile.class.getSimpleName(), fileFactory);
 		
 		Configuration.registerExplorer(PropertiesFile.class.getSimpleName(), new PropertiesFileExplorer());
 		Configuration.registerExplorer(XConfFile.class.getSimpleName(), new XConfFileExplorer());
@@ -31,6 +31,8 @@ public class Activator implements BundleActivator {
 
 	public void stop(BundleContext bundleContext) throws Exception {
 		System.out.println("Unloading Java filesystem factories");
+		
+		// TODO: Unregister
 	}
 
 }

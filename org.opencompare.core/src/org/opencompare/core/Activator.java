@@ -1,5 +1,7 @@
 package org.opencompare.core;
 
+import java.lang.management.ManagementFactory;
+
 import org.opencompare.explorable.Configuration;
 import org.opencompare.explorable.Conflict;
 import org.opencompare.explorable.Description;
@@ -7,8 +9,7 @@ import org.opencompare.explorable.Property;
 import org.opencompare.explorable.Root;
 import org.opencompare.explorable.RootFactory;
 import org.opencompare.explorable.ThreadControllExplorable;
-import org.opencompare.explorers.core.NoExplorer;
-import org.opencompare.explorers.core.RootExplorer;
+import org.opencompare.explorers.NoExplorer;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -38,7 +39,6 @@ public class Activator implements BundleActivator {
 
 		NoExplorer noExplorer = new NoExplorer();
 		
-		Configuration.registerExplorer(Root.class.getSimpleName(), new RootExplorer());
 		Configuration.registerExplorer(Property.class.getSimpleName(), noExplorer);
 		Configuration.registerExplorer(Conflict.class.getSimpleName(), noExplorer);
 		Configuration.registerExplorer(Description.class.getSimpleName(), noExplorer);

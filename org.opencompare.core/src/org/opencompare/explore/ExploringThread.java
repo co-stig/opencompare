@@ -13,12 +13,10 @@ import org.opencompare.explorers.Explorer;
 public class ExploringThread extends Thread {
 
     public static final AtomicInteger exploringCount = new AtomicInteger(0);
-    private final ExplorationQueue queue;
-    private final Database database;
+    private final Database threadDatabase;
 
-    public ExploringThread(ExplorationQueue queue, Database database) {
-        this.queue = queue;
-        this.database = database;
+    public ExploringThread(Database threadDatabase) {
+        this.threadDatabase = threadDatabase;
     }
 
     public void run() {
@@ -27,7 +25,7 @@ public class ExploringThread extends Thread {
 
                 Explorable parent = null;
                 try {
-                    parent = queue.next();
+                    parent = ExplorationQueue.getInstance().next();
                     if (parent instanceof ThreadControllExplorable) {
                         // It is time to terminate the thread
                         break;
@@ -50,7 +48,7 @@ public class ExploringThread extends Thread {
 
                 	List<Explorer> explorers = Configuration.getExplorers(clazz);
                 	for (Explorer explorer: explorers) {
-                		explorer.explore(database, parent);
+                		explorer.explore(this, parent);
                 	}
                 	
                 } catch (InterruptedException e) {
@@ -63,9 +61,9 @@ public class ExploringThread extends Thread {
                 }
             }
         } finally {
-            if (database != null) {
+            if (threadDatabase != null) {
                 try {
-                    database.close();
+                    threadDatabase.close();
                 } catch (IOException ex) {
                     System.out.println("ERROR while closing the database for an exploration thread: " + ex.getMessage());
                     ex.printStackTrace();
@@ -74,4 +72,20 @@ public class ExploringThread extends Thread {
             System.out.println("Exiting ExploringThread");
         }
     }
+    
+	public Explorable enqueue(Explorable origin, String type, Object... params) throws InterruptedException, ExplorationException {
+		Explorable e = Configuration.createExplorable(origin, type, params);
+		
+		// 1. Calculate SHA
+		e.calculateSha(origin.getTempFullId());
+		
+		// 2. Store it in database, use thread connection
+		threadDatabase.add(e);
+		
+		// 3. Enqueue
+		ExplorationQueue.getInstance().add(e);
+		
+		return e;
+	}
+
 }

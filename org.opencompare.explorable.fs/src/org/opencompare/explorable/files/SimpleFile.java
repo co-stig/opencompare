@@ -23,7 +23,7 @@ public class SimpleFile extends Explorable {
         this(id, parentId, path, calculateChecksum(path), null);
     }
     
-	private static long calculateChecksum(File path) throws ExplorationException {
+	public static long calculateChecksum(File path) throws ExplorationException {
 		// TODO: Try NIO here?
 		try {
 			BufferedInputStream is = new BufferedInputStream(new FileInputStream(path));

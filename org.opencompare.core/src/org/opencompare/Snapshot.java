@@ -11,6 +11,8 @@ import java.text.NumberFormat;
 import java.util.Date;
 import java.util.Properties;
 
+import org.opencompare.explorable.Configuration;
+
 public class Snapshot implements Comparable<Snapshot> {
 
 	public enum State {
@@ -215,6 +217,8 @@ public class Snapshot implements Comparable<Snapshot> {
 		prop.setProperty("author", author);
 		prop.setProperty("state", state.toString());
 		prop.setProperty("type", type.toString());
+
+		Configuration.saveConfiguration(prop);
 		
 		OutputStream out = new FileOutputStream(getPropertiesFile(folder));
 		try {

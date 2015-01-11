@@ -2,6 +2,9 @@ package org.opencompare.explorable;
 
 import org.opencompare.explore.ExplorationException;
 
+/**
+ *
+ */
 public interface ExplorableFactory {
 
 	/**

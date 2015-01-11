@@ -1,17 +1,16 @@
-package org.opencompare.explorers;
+package org.opencompare.explorable;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-// TODO: Use this annotation to automatically register explorers
-//TODO: This concept won't work for reusable explorers, e.g. NoExplorer
+// TODO: Use this annotation to automatically register explorable factories
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })
-public @interface Explores {
+public @interface Creates {
 
-	Class<?> value();
+	Class<?>[] value();
 	
 }

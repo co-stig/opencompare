@@ -4,14 +4,14 @@ Bundle-Name: Core
 Bundle-SymbolicName: org.opencompare.core
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.opencompare.core.Activator
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Import-Package: org.osgi.framework;version="1.3.0"
 Bundle-ClassPath: .
 Export-Package: org.opencompare,
  org.opencompare.compare,
+ org.opencompare.core,
  org.opencompare.database,
  org.opencompare.explorable,
  org.opencompare.explore,
  org.opencompare.explorers,
- org.opencompare.explorers.core,
  org.opencompare.external

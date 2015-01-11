@@ -1,7 +1,9 @@
 package org.opencompare;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 import org.opencompare.compare.CompareThread;
 import org.opencompare.database.Database;
@@ -12,7 +14,6 @@ import org.opencompare.explorable.Root;
 import org.opencompare.explorable.RootFactory;
 import org.opencompare.explore.ExplorationException;
 import org.opencompare.explore.ExplorationProgressThread;
-import org.opencompare.explore.ExplorationQueue;
 import org.opencompare.explore.ExploringThread;
 import org.opencompare.explore.TerminatingThread;
 
@@ -27,7 +28,8 @@ public class ExploreApplication {
     public static String getUser() {
     	return "username";
     }
-    
+
+    // TODO: Split it into several smaller methods
     public static Snapshot explore(String rootFolder, String snapshotName, WithProgress progress) throws InterruptedException, ExplorationException, IOException {
     	DatabaseManager dbm = DatabaseManagerFactory.get();
 
@@ -39,17 +41,17 @@ public class ExploreApplication {
         int estimatedSize = 1000;	// TODO: Create good estimation (add to Explorer interface?)
         System.out.println(estimatedSize);
 
-        ExplorationQueue queue = new ExplorationQueue();
-        
-        Configuration.initialize(queue, rootConnection);
+        Configuration.initialize(rootConnection);
 
         newDatabase.setState(Snapshot.State.InProgress);
+        ExploringThread anyThread = null;
         
         for (int i = 0; i < EXPLORING_THREADS_COUNT; ++i) {
             // Apache Derby recommends using one connection per thread, its
             // multithreading semantics is not intuitive.
             Database database = dbm.newExplorablesConnection(newDatabase);
-            new ExploringThread(queue, database).start();
+            anyThread = new ExploringThread(database);
+            anyThread.start();
         }
 
         Database progressDb = dbm.newExplorablesConnection(newDatabase);
@@ -57,22 +59,24 @@ public class ExploreApplication {
             ExplorationProgressThread progressThread = new ExplorationProgressThread(progressDb, 1000, progress, estimatedSize, true);
             progressThread.start();
 
+            Configuration.setProperty("root.folder", rootFolder);
+            
             // Now everything is ready -- enqueue a Root
-            Configuration.enqueue(
-            		rootConnection, 
-            		new Root(null, ""),		// We use this one only to calculate SHA later, thus nulls, etc. 
-            		RootFactory.TYPE_ROOT, 
-            		new File(rootFolder), 
-            		null
+            anyThread.enqueue(
+            		new Root(), 
+            		RootFactory.TYPE_ROOT
         		);
             
-            Thread terminator = new TerminatingThread(EXPLORING_THREADS_COUNT, queue, 1000, progressThread);
+            Thread terminator = new TerminatingThread(EXPLORING_THREADS_COUNT, 1000, progressThread);
             terminator.start();
             terminator.join();
         } finally {
             try {
                 progressDb.close();
                 rootConnection.close();
+                Map<Closeable, IOException> exceptions = Configuration.close();
+                System.out.println(exceptions);
+                // TODO: Handle exceptions better somehow?
             } catch (IOException ex) {
                 throw new ExplorationException("Unable to close the progress database", ex);
             }
@@ -96,7 +100,7 @@ public class ExploreApplication {
 
         Snapshot newDatabase = dbm.createConflictsDatabase(conflictSnapshotName);
         Database conflictDb = dbm.newConflictsConnection(newDatabase);
-        Configuration.initialize(null, conflictDb);
+        Configuration.initialize(conflictDb);
 
         Database progressDb = dbm.newConflictsConnection(newDatabase);
         

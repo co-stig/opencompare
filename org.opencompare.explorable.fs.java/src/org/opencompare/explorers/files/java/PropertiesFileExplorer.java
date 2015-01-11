@@ -5,22 +5,24 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map.Entry;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Properties;
 
-import org.opencompare.database.Database;
-import org.opencompare.explorable.Configuration;
 import org.opencompare.explorable.Explorable;
 import org.opencompare.explorable.RootFactory;
 import org.opencompare.explorable.files.java.PropertiesFile;
 import org.opencompare.explore.ExplorationException;
+import org.opencompare.explore.ExploringThread;
 import org.opencompare.explorers.Explorer;
+import org.opencompare.explorers.ExplorerProperty;
 import org.opencompare.explorers.Explores;
 
 @Explores(PropertiesFile.class)
 public class PropertiesFileExplorer implements Explorer {
 
     @Override
-	public void explore(Database threadDatabase, Explorable what) throws ExplorationException, InterruptedException {
+	public void explore(ExploringThread thread, Explorable what) throws ExplorationException, InterruptedException {
     	PropertiesFile file = (PropertiesFile) what;
     	
 		Properties p = new Properties();
@@ -38,8 +40,13 @@ public class PropertiesFileExplorer implements Explorer {
 		
 		for (Entry<Object, Object> e: p.entrySet()) {
 			// Here cast to String is perfectly safe, according to Properties specification
-			Configuration.enqueue(threadDatabase, file, RootFactory.TYPE_PROPERTY, (String) e.getKey(), (String) e.getValue());
+			thread.enqueue(file, RootFactory.TYPE_PROPERTY, (String) e.getKey(), (String) e.getValue());
 		}
 	}
     
+	@Override
+	@SuppressWarnings("unchecked")
+	public Collection<ExplorerProperty> getProperties() {
+		return Collections.EMPTY_LIST;
+	}
 }

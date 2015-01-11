@@ -7,6 +7,7 @@ import org.opencompare.explorable.Explorable;
 
 public class ExplorationQueue {
 
+	private static final ExplorationQueue instance = new ExplorationQueue();
 	private final BlockingQueue<Explorable> tasks = new LinkedBlockingQueue<Explorable>();
 	
 	public Explorable next() throws InterruptedException {
@@ -15,6 +16,10 @@ public class ExplorationQueue {
 	
 	public void add(Explorable e) throws InterruptedException {
 		tasks.put(e);
+	}
+	
+	public static ExplorationQueue getInstance() {
+		return instance;
 	}
 
 }

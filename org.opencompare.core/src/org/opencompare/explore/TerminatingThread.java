@@ -6,15 +6,13 @@ public class TerminatingThread extends Thread {
 
     private final int threadsCount;
     private final int checkInterval;
-    private final ExplorationQueue queue;
     private final ExplorationProgressThread progress;
 
     private int lastExploringCount = 0;
 
-    public TerminatingThread(int threadsCount, ExplorationQueue queue, int checkInterval, ExplorationProgressThread progress) {
+    public TerminatingThread(int threadsCount, int checkInterval, ExplorationProgressThread progress) {
         this.threadsCount = threadsCount;
         this.checkInterval = checkInterval;
-        this.queue = queue;
         this.progress = progress;
     }
 
@@ -30,7 +28,7 @@ public class TerminatingThread extends Thread {
                         // ThreadControllExplorables. Then terminate itself.
                         progress.stopThread();
                         for (int i = 0; i < threadsCount; ++i) {
-                            queue.add(new ThreadControllExplorable());
+                            ExplorationQueue.getInstance().add(new ThreadControllExplorable());
                         }
                         break;
                     }

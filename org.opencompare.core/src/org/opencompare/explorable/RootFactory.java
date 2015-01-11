@@ -1,10 +1,10 @@
 package org.opencompare.explorable;
 
-import java.io.File;
 import java.util.Arrays;
 
 import org.opencompare.explore.ExplorationException;
 
+@Creates({Root.class, Property.class, ThreadControllExplorable.class, Conflict.class, Description.class})
 public class RootFactory implements ExplorableFactory {
 
 	public static final String TYPE_ROOT = Root.class.getSimpleName();
@@ -29,7 +29,7 @@ public class RootFactory implements ExplorableFactory {
 					sha
 				);
 		} else if (type.equals(TYPE_ROOT)) {
-			return new Root(null, sha);
+			return new Root();
 		} else {
 			throw new ExplorationException("Unsupported type: " + type);
 		}
@@ -56,7 +56,7 @@ public class RootFactory implements ExplorableFactory {
 					(String) params[5]															// String comment
 				);
 		} else if (type.equals(TYPE_ROOT)) {
-			return new Root((File) params[0], (String) params[1]);
+			return new Root();
 		} else {
 			throw new ExplorationException("Unsupported type: " + type);
 		}

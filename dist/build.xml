@@ -1,0 +1,26 @@
+<project name="org.opencompare" default="dist" basedir=".">
+
+	<property name="src" location="d:/workspaces/github/opencompare" />
+
+	<target name="dist">
+		<antcall target="pack"><param name="project" value="org.opencompare.cmd" /></antcall>
+		<antcall target="pack"><param name="project" value="org.opencompare.core" /></antcall>
+		<antcall target="pack"><param name="project" value="org.opencompare.data" /></antcall>
+		<antcall target="pack"><param name="project" value="org.opencompare.explorable.fs" /></antcall>
+		<antcall target="pack"><param name="project" value="org.opencompare.explorable.fs.java" /></antcall>
+		<antcall target="pack"><param name="project" value="org.opencompare.ui" /></antcall>
+	</target>
+
+	<target name="pack">
+		<jar 
+			jarfile="${src}/dist/plugins/${project}.jar" 
+			manifest="${src}/${project}/META-INF/MANIFEST.MF">
+		    <fileset dir="${src}/${project}/bin"/>
+			<fileset dir="${src}/${project}">
+				<include name="**/*.jar"/>
+			</fileset>
+		</jar>
+	</target>
+
+</project>
+
