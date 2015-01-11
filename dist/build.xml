@@ -1,25 +1,47 @@
-<project name="org.opencompare" default="dist" basedir=".">
+<project name="org.opencompare.dist" default="dist" basedir=".">
 
-	<property name="src" location="d:/workspaces/github/opencompare" />
-
-	<target name="dist">
-		<antcall target="pack"><param name="project" value="org.opencompare.cmd" /></antcall>
+	<target name="dist" depends="recompile-all,clean">
+		<mkdir dir="plugins" />
 		<antcall target="pack"><param name="project" value="org.opencompare.core" /></antcall>
 		<antcall target="pack"><param name="project" value="org.opencompare.data" /></antcall>
 		<antcall target="pack"><param name="project" value="org.opencompare.explorable.fs" /></antcall>
 		<antcall target="pack"><param name="project" value="org.opencompare.explorable.fs.java" /></antcall>
+		<antcall target="pack"><param name="project" value="org.opencompare.cmd" /></antcall>
 		<antcall target="pack"><param name="project" value="org.opencompare.ui" /></antcall>
 	</target>
 
+	<target name="clean">
+		<delete dir="plugins" />
+	</target>
+	
 	<target name="pack">
 		<jar 
-			jarfile="${src}/dist/plugins/${project}.jar" 
-			manifest="${src}/${project}/META-INF/MANIFEST.MF">
-		    <fileset dir="${src}/${project}/bin"/>
-			<fileset dir="${src}/${project}">
+			jarfile="plugins/${project}.jar" 
+			manifest="../${project}/META-INF/MANIFEST.MF">
+		    <fileset dir="../${project}/bin"/>
+			<fileset dir="../${project}">
 				<include name="**/*.jar"/>
 			</fileset>
 		</jar>
+	</target>
+
+	<target name="compile-all">
+		<antcall target="executetarget"><param name="compiletarget">compile</param></antcall>
+	</target>
+	
+	<target name="clean-all">
+		<antcall target="executetarget"><param name="compiletarget">clean</param></antcall>
+	</target>
+	
+	<target name="recompile-all" depends="clean-all,compile-all" />
+	
+	<target name="executetarget">
+		<ant antfile="../org.opencompare.core/build.xml" target="${compiletarget}" dir="../org.opencompare.core" />
+		<ant antfile="../org.opencompare.data/build.xml" target="${compiletarget}" dir="../org.opencompare.data" />
+		<ant antfile="../org.opencompare.explorable.fs/build.xml" target="${compiletarget}" dir="../org.opencompare.explorable.fs" />
+		<ant antfile="../org.opencompare.explorable.fs.java/build.xml" target="${compiletarget}" dir="../org.opencompare.explorable.fs.java" />
+		<ant antfile="../org.opencompare.ui/build.xml" target="${compiletarget}" dir="../org.opencompare.ui" />
+		<ant antfile="../org.opencompare.cmd/build.xml" target="${compiletarget}" dir="../org.opencompare.cmd" />
 	</target>
 
 </project>

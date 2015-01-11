@@ -1,0 +1,21 @@
+<project name="org.opencompare.explorable.fs" default="compile" basedir=".">
+
+	<target name="compile">
+		<mkdir dir="bin" />
+		<javac 
+			srcdir="src" 
+			destdir="bin" 
+			source="1.6"
+			target="1.6"
+			classpath="../dist/osgi/org.eclipse.osgi_3.10.0.v20140606-1445.jar;../org.opencompare.core/bin;../org.opencompare.data/bin" />
+		<copy todir="bin">
+		    <fileset dir="src" excludes="**/*.java" />
+		</copy>
+	</target>
+
+	<target name="clean">
+		<delete dir="bin" />
+	</target>
+
+</project>
+

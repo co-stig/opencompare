@@ -1,0 +1,10 @@
+<project name="org.opencompare" default="test" basedir=".">
+
+	<target name="test">
+		<ant 
+			antfile="dist/build.xml" 
+			dir="dist" />
+	</target>
+
+</project>
+
