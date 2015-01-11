@@ -2,7 +2,7 @@
 
 	<target name="test">
 		<ant 
-			antfile="dist/build.xml" 
+			antfile="build.xml" 
 			dir="dist" />
 	</target>
 
