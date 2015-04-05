@@ -1,4 +1,4 @@
-Open Compare
+Open Compare ![Build status](https://travis-ci.org/co-stig/opencompare.svg?branch=master)
 ===========
 
 Open Compare is a generic open-source compare tool.
