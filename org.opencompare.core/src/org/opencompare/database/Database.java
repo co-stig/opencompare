@@ -12,7 +12,7 @@ import org.opencompare.explore.ExplorationException;
 /**
  * All methods should be synchronized.
  */
-public interface Database extends Closeable {
+public interface Database extends Closeable, IdGenerator {
 
     Explorable getRoot() throws ExplorationException;
 
@@ -41,8 +41,6 @@ public interface Database extends Closeable {
 
     int size() throws ExplorationException;
     int sizeFilesOnly() throws ExplorationException;
-
-    int nextId() throws ExplorationException;
 
     Snapshot getSnapshot();
 }

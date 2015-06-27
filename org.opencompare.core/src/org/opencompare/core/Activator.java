@@ -1,10 +1,10 @@
 package org.opencompare.core;
 
-import java.lang.management.ManagementFactory;
-
-import org.opencompare.explorable.Configuration;
+import org.opencompare.ExploreApplication;
+import org.opencompare.explorable.ApplicationConfiguration;
 import org.opencompare.explorable.Conflict;
 import org.opencompare.explorable.Description;
+import org.opencompare.explorable.OptionDefinition;
 import org.opencompare.explorable.Property;
 import org.opencompare.explorable.Root;
 import org.opencompare.explorable.RootFactory;
@@ -30,19 +30,38 @@ public class Activator implements BundleActivator {
 		System.out.println("Initializing core factories: START");
 		
 		RootFactory rootFactory = new RootFactory();
+		ApplicationConfiguration appConfig = ApplicationConfiguration.getInstance();
 		
-		Configuration.registerExplorableFactory(Root.class.getSimpleName(), rootFactory);
-		Configuration.registerExplorableFactory(Property.class.getSimpleName(), rootFactory);
-		Configuration.registerExplorableFactory(ThreadControllExplorable.class.getSimpleName(), rootFactory);
-		Configuration.registerExplorableFactory(Conflict.class.getSimpleName(), rootFactory);
-		Configuration.registerExplorableFactory(Description.class.getSimpleName(), rootFactory);
+		appConfig.registerExplorableFactory(Root.class.getSimpleName(), rootFactory);
+		appConfig.registerExplorableFactory(Property.class.getSimpleName(), rootFactory);
+		appConfig.registerExplorableFactory(ThreadControllExplorable.class.getSimpleName(), rootFactory);
+		appConfig.registerExplorableFactory(Conflict.class.getSimpleName(), rootFactory);
+		appConfig.registerExplorableFactory(Description.class.getSimpleName(), rootFactory);
 
 		NoExplorer noExplorer = new NoExplorer();
 		
-		Configuration.registerExplorer(Property.class.getSimpleName(), noExplorer);
-		Configuration.registerExplorer(Conflict.class.getSimpleName(), noExplorer);
-		Configuration.registerExplorer(Description.class.getSimpleName(), noExplorer);
-		Configuration.registerExplorer(ThreadControllExplorable.class.getSimpleName(), noExplorer);
+		appConfig.registerExplorer(Property.class.getSimpleName(), noExplorer);
+		appConfig.registerExplorer(Conflict.class.getSimpleName(), noExplorer);
+		appConfig.registerExplorer(Description.class.getSimpleName(), noExplorer);
+		appConfig.registerExplorer(ThreadControllExplorable.class.getSimpleName(), noExplorer);
+
+		appConfig.addOptionDefinition(
+				OptionDefinition.newTextOption(
+						ExploreApplication.OPTION_SNAPSHOT_NAME, 
+						"Snapshot name", 
+						"",
+						true
+					)
+			);
+		
+		appConfig.addOptionDefinition(
+				OptionDefinition.newIntOption(
+						ExploreApplication.OPTION_EXPLORE_THREADS_COUNT, 
+						"Explore threads count", 
+						5,
+						false
+					)
+			);
 		
 		System.out.println("Initializing core factories: FINISH");
 	}

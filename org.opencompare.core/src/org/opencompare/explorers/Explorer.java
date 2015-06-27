@@ -1,8 +1,7 @@
 package org.opencompare.explorers;
 
-import java.util.Collection;
-
 import org.opencompare.explorable.Explorable;
+import org.opencompare.explorable.ProcessConfiguration;
 import org.opencompare.explore.ExplorationException;
 import org.opencompare.explore.ExploringThread;
 
@@ -15,8 +14,5 @@ public interface Explorer {
 	 * @throws ExplorationException
 	 * @throws InterruptedException
 	 */
-	public abstract void explore(ExploringThread thread, Explorable what) throws ExplorationException, InterruptedException;
-
-	public abstract Collection<ExplorerProperty> getProperties();
-	
+	void explore(ProcessConfiguration config, ExploringThread thread, Explorable what) throws ExplorationException, InterruptedException;
 }

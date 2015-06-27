@@ -1,40 +1,71 @@
-<project name="org.opencompare.dist" default="dist" basedir=".">
+<project name="org.opencompare.dist" default="pack-dist" basedir=".">
 
 	<target name="dist" depends="recompile-all,clean">
 		<mkdir dir="plugins" />
-		<antcall target="pack"><param name="project" value="org.opencompare.core" /></antcall>
-		<antcall target="pack"><param name="project" value="org.opencompare.data" /></antcall>
-		<antcall target="pack"><param name="project" value="org.opencompare.explorable.fs" /></antcall>
-		<antcall target="pack"><param name="project" value="org.opencompare.explorable.fs.java" /></antcall>
-		<antcall target="pack"><param name="project" value="org.opencompare.cmd" /></antcall>
-		<antcall target="pack"><param name="project" value="org.opencompare.ui" /></antcall>
+		<antcall target="pack-project">
+			<param name="project" value="org.opencompare.core" />
+		</antcall>
+		<antcall target="pack-project">
+			<param name="project" value="org.opencompare.data" />
+		</antcall>
+		<antcall target="pack-project">
+			<param name="project" value="org.opencompare.explorable.fs" />
+		</antcall>
+		<antcall target="pack-project">
+			<param name="project" value="org.opencompare.explorable.fs.java" />
+		</antcall>
+		<antcall target="pack-project">
+			<param name="project" value="org.opencompare.cmd" />
+		</antcall>
+		<antcall target="pack-project">
+			<param name="project" value="org.opencompare.ui" />
+		</antcall>
 	</target>
 
 	<target name="clean">
 		<delete dir="plugins" />
 	</target>
-	
-	<target name="pack">
+
+	<target name="pack-project">
 		<jar 
 			jarfile="plugins/${project}.jar" 
 			manifest="../${project}/META-INF/MANIFEST.MF">
-		    <fileset dir="../${project}/bin"/>
+			<fileset dir="../${project}/bin"/>
 			<fileset dir="../${project}">
 				<include name="**/*.jar"/>
 			</fileset>
 		</jar>
 	</target>
 
+	<target name="pack-dist" depends="dist">
+		<mkdir dir="install" />
+		<zip destfile="install/opencompare.zip">
+			<fileset dir=".">
+				<exclude name="db/**" />
+				<exclude name="install/**" />
+				<exclude name="build.xml" />
+				<exclude name=".project" />
+			</fileset>
+		</zip>
+		<tar destfile="install/opencompare.tar.gz" compression="gzip">
+			<zipfileset src="install/opencompare.zip" />
+		</tar>
+	</target>
+
 	<target name="compile-all">
-		<antcall target="executetarget"><param name="compiletarget">compile</param></antcall>
+		<antcall target="executetarget">
+			<param name="compiletarget">compile</param>
+		</antcall>
 	</target>
-	
+
 	<target name="clean-all">
-		<antcall target="executetarget"><param name="compiletarget">clean</param></antcall>
+		<antcall target="executetarget">
+			<param name="compiletarget">clean</param>
+		</antcall>
 	</target>
-	
+
 	<target name="recompile-all" depends="clean-all,compile-all" />
-	
+
 	<target name="executetarget">
 		<ant antfile="../org.opencompare.core/build.xml" target="${compiletarget}" dir="../org.opencompare.core" />
 		<ant antfile="../org.opencompare.data/build.xml" target="${compiletarget}" dir="../org.opencompare.data" />

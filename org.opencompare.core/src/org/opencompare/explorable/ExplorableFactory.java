@@ -1,9 +1,10 @@
 package org.opencompare.explorable;
 
+import org.opencompare.database.IdGenerator;
 import org.opencompare.explore.ExplorationException;
 
 /**
- *
+ * TODO: Describe explorable factory lifecycle
  */
 public interface ExplorableFactory {
 
@@ -27,6 +28,6 @@ public interface ExplorableFactory {
 	 * it can return null. In this case the control will be passed forward to
 	 * the next (less specific) factory.
 	 */
-	Explorable createExplorable(Explorable origin, String type, Object... params) throws ExplorationException;
+	Explorable createExplorable(ProcessConfiguration config, IdGenerator idGenerator, Explorable origin, String type, Object... params) throws ExplorationException;
 	
 }

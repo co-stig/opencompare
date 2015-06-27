@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.opencompare.Snapshot;
-import org.opencompare.explorable.Configuration;
+import org.opencompare.explorable.ApplicationConfiguration;
 import org.opencompare.explorable.Explorable;
 import org.opencompare.explore.ExplorationException;
 
@@ -188,7 +188,7 @@ public class JdbcExplorablesDatabase extends AbstractJdbcDatabase {
         String type = rs.getString(6);
         String sha = rs.getString(7);
 
-        return Configuration.createExplorable(type, id, parentId, relativeId, value, hash, sha);
+        return ApplicationConfiguration.getInstance().createExplorable(type, id, parentId, relativeId, value, hash, sha);
     }
 
     public List<Explorable> getChildren(Explorable parent) throws ExplorationException {

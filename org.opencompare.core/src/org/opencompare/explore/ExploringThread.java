@@ -5,7 +5,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.opencompare.database.Database;
-import org.opencompare.explorable.Configuration;
+import org.opencompare.explorable.ApplicationConfiguration;
+import org.opencompare.explorable.ProcessConfiguration;
 import org.opencompare.explorable.Explorable;
 import org.opencompare.explorable.ThreadControllExplorable;
 import org.opencompare.explorers.Explorer;
@@ -13,9 +14,11 @@ import org.opencompare.explorers.Explorer;
 public class ExploringThread extends Thread {
 
     public static final AtomicInteger exploringCount = new AtomicInteger(0);
+    private final ProcessConfiguration config;
     private final Database threadDatabase;
 
-    public ExploringThread(Database threadDatabase) {
+    public ExploringThread(ProcessConfiguration config, Database threadDatabase) {
+    	this.config = config;
         this.threadDatabase = threadDatabase;
     }
 
@@ -46,9 +49,9 @@ public class ExploringThread extends Thread {
                     
                 	String clazz = parent.getClass().getSimpleName();
 
-                	List<Explorer> explorers = Configuration.getExplorers(clazz);
+                	List<Explorer> explorers = ApplicationConfiguration.getInstance().getExplorers(clazz);
                 	for (Explorer explorer: explorers) {
-                		explorer.explore(this, parent);
+                		explorer.explore(config, this, parent);
                 	}
                 	
                 } catch (InterruptedException e) {
@@ -74,7 +77,7 @@ public class ExploringThread extends Thread {
     }
     
 	public Explorable enqueue(Explorable origin, String type, Object... params) throws InterruptedException, ExplorationException {
-		Explorable e = Configuration.createExplorable(origin, type, params);
+		Explorable e = ApplicationConfiguration.getInstance().createExplorable(config, threadDatabase, origin, type, params);
 		
 		// 1. Calculate SHA
 		e.calculateSha(origin.getTempFullId());

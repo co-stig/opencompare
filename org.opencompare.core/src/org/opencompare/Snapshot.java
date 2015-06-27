@@ -11,8 +11,11 @@ import java.text.NumberFormat;
 import java.util.Date;
 import java.util.Properties;
 
-import org.opencompare.explorable.Configuration;
+import org.opencompare.explorable.ApplicationConfiguration;
+import org.opencompare.explorable.ProcessConfiguration;
 
+// TODO: Incorporate some logic inside, so that this class is lifecycle-aware,
+// e.g. fill completedOn date with the current time when the state goes to Finished.
 public class Snapshot implements Comparable<Snapshot> {
 
 	public enum State {
@@ -28,6 +31,8 @@ public class Snapshot implements Comparable<Snapshot> {
     
     // These are read from properties file
     
+    private Date completedOn;		// Can be null
+    private Date createdOn;			// Can be null
     private Date lastModified;		// Can be null
     private String name;
     private String version;
@@ -39,9 +44,13 @@ public class Snapshot implements Comparable<Snapshot> {
     private State state;
     private Type type;
 
-    /** 
-     * This constructor is used for loading existing snapshots.
-     */
+	/**
+	 * This constructor is used for loading existing snapshots. Be careful -- it
+	 * doesn't preserve additional properties, i.e. if the snapshot with options
+	 * is reloaded, option values will be lost.
+	 * 
+	 * TODO: Handle all properties correctly.
+	 */
     public Snapshot(File folder) {
         this.folder = folder;
         size = calculateSizeRecursive(folder);
@@ -63,6 +72,8 @@ public class Snapshot implements Comparable<Snapshot> {
         
         if (prop == null) {
         	lastModified = null;
+        	createdOn = null;
+        	completedOn = null;
         	name = folder.getName();
         	version = "N/A";
         	toolVersion = "N/A";
@@ -74,7 +85,10 @@ public class Snapshot implements Comparable<Snapshot> {
         	type = Type.Unknown;
         } else {
         	// No checks for nulls here -- let the user see ugly exceptions!
+        	// TODO: Be careful, make some of them optional, or handle different app versions otherwise somehow
         	lastModified = new Date(Long.parseLong(prop.getProperty("lastModified")));
+        	createdOn = new Date(Long.parseLong(prop.getProperty("createdOn")));
+        	completedOn = new Date(Long.parseLong(prop.getProperty("completedOn")));
         	name = prop.getProperty("name");
         	version = prop.getProperty("version");
         	toolVersion = prop.getProperty("toolVersion");
@@ -95,6 +109,8 @@ public class Snapshot implements Comparable<Snapshot> {
         this.folder = folder;
         this.size = 0;
     	this.lastModified = new Date();
+    	this.createdOn = new Date();
+    	this.completedOn = new Date();
     	this.name = name;
     	this.version = version;
     	this.toolVersion = ExploreApplication.TOOL_VERSION;
@@ -174,12 +190,24 @@ public class Snapshot implements Comparable<Snapshot> {
     }
 
     public String getLastModifiedFormatted() {
-        return 
-        		lastModified == null ? 
-				"N/A" : 
-				DateFormat.getDateTimeInstance().format(lastModified);
+        return getDateFormatted(lastModified);
     }
 
+    public String getCreatedOnFormatted() {
+    	return getDateFormatted(createdOn);
+    }
+    
+    public String getCompletedOnFormatted() {
+    	return getDateFormatted(completedOn);
+    }
+    
+    private static String getDateFormatted(Date date) {
+    	return 
+    			date == null ? 
+				"N/A" : 
+				DateFormat.getDateTimeInstance().format(date);
+    }
+    
     public String getSizeFormatted() {
         return NumberFormat.getIntegerInstance().format(size);
     }
@@ -197,11 +225,17 @@ public class Snapshot implements Comparable<Snapshot> {
         path.delete();
     }
 
-	public void save() throws IOException {
+    public void save() throws IOException {
+    	save(null);
+    }
+    
+	public void save(ProcessConfiguration config) throws IOException {
 		lastModified = new Date();
 
 		Properties prop = new Properties();
 		prop.setProperty("lastModified", Long.toString(lastModified.getTime()));
+		prop.setProperty("createdOn", Long.toString(createdOn.getTime()));
+		prop.setProperty("completedOn", Long.toString(completedOn.getTime()));
 		prop.setProperty("name", name);
 		prop.setProperty("version", version);
 		prop.setProperty("toolVersion", toolVersion);
@@ -218,7 +252,10 @@ public class Snapshot implements Comparable<Snapshot> {
 		prop.setProperty("state", state.toString());
 		prop.setProperty("type", type.toString());
 
-		Configuration.saveConfiguration(prop);
+		ApplicationConfiguration.getInstance().appendConfiguration(prop);
+		if (config != null) {
+			config.appendConfiguration(prop);
+		}
 		
 		OutputStream out = new FileOutputStream(getPropertiesFile(folder));
 		try {
@@ -322,6 +359,9 @@ public class Snapshot implements Comparable<Snapshot> {
 
 	public void setState(State state) throws IOException {
 		this.state = state;
+		if (state.equals(State.Finished) || state.equals(State.Aborted)) {
+			setCompletedOn(new Date());
+		}
 		save();
 	}
 
@@ -334,5 +374,22 @@ public class Snapshot implements Comparable<Snapshot> {
 		this.size = calculateSizeRecursive(folder);
 		save();
 	}
-        
+
+	public Date getCompletedOn() {
+		return completedOn;
+	}
+
+	public void setCompletedOn(Date completedOn) throws IOException {
+		this.completedOn = completedOn;
+		save();
+	}
+
+	public Date getCreatedOn() {
+		return createdOn;
+	}
+
+	public void setCreatedOn(Date createdOn) throws IOException {
+		this.createdOn = createdOn;
+		save();
+	}
 }

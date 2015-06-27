@@ -1,6 +1,7 @@
 package org.opencompare.explorable.fs.java;
 
-import org.opencompare.explorable.Configuration;
+import org.opencompare.explorable.ApplicationConfiguration;
+import org.opencompare.explorable.OptionDefinition;
 import org.opencompare.explorable.files.SimpleFile;
 import org.opencompare.explorable.files.java.FileFactory;
 import org.opencompare.explorable.files.java.PropertiesFile;
@@ -17,15 +18,34 @@ public class Activator implements BundleActivator {
 		System.out.println("Initializing Java filesystem factories: START");
 		
 		FileFactory fileFactory = new FileFactory();
+		ApplicationConfiguration appConfig = ApplicationConfiguration.getInstance();
 		
-		Configuration.registerExplorableFactory(PropertiesFile.class.getSimpleName(), fileFactory);
-		Configuration.registerExplorableFactory(XConfFile.class.getSimpleName(), fileFactory);
-		Configuration.registerExplorableFactory(SimpleFile.class.getSimpleName(), fileFactory);
+		appConfig.registerExplorableFactory(PropertiesFile.class.getSimpleName(), fileFactory);
+		appConfig.registerExplorableFactory(XConfFile.class.getSimpleName(), fileFactory);
+		appConfig.registerExplorableFactory(SimpleFile.class.getSimpleName(), fileFactory);
 		
-		Configuration.registerExplorer(PropertiesFile.class.getSimpleName(), new PropertiesFileExplorer());
-		Configuration.registerExplorer(XConfFile.class.getSimpleName(), new XConfFileExplorer());
-		Configuration.registerExplorer(SimpleFile.class.getSimpleName(), new ClassFileExplorer());
-		
+		appConfig.registerExplorer(PropertiesFile.class.getSimpleName(), new PropertiesFileExplorer());
+		appConfig.registerExplorer(XConfFile.class.getSimpleName(), new XConfFileExplorer());
+		appConfig.registerExplorer(SimpleFile.class.getSimpleName(), new ClassFileExplorer());
+
+		appConfig.addOptionDefinition(
+				OptionDefinition.newYesNoOption(
+						ClassFileExplorer.OPTION_EXPLORE_FIELDS, 
+						"Explore fields", 
+						true,
+						false
+					)
+			);
+
+		appConfig.addOptionDefinition(
+				OptionDefinition.newYesNoOption(
+						ClassFileExplorer.OPTION_EXPLORE_METHODS, 
+						"Explore methods", 
+						true,
+						false
+					)
+			);
+
 		System.out.println("Initializing Java filesystem factories: FINISH");
 	}
 

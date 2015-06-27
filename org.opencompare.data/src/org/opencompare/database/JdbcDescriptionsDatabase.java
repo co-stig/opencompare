@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.opencompare.Snapshot;
-import org.opencompare.explorable.Configuration;
+import org.opencompare.explorable.ApplicationConfiguration;
 import org.opencompare.explorable.Description;
 import org.opencompare.explorable.Explorable;
 import org.opencompare.explore.ExplorationException;
@@ -210,7 +210,7 @@ public class JdbcDescriptionsDatabase extends AbstractJdbcDatabase implements De
 		String value = clob.getSubString(1, (int) clob.length());
         String sha = rs.getString(5);
         
-        return (Description) Configuration.createExplorable(DESCRIPTION, id, parentId, relativeId, value, value.hashCode(), sha);
+        return (Description) ApplicationConfiguration.getInstance().createExplorable(DESCRIPTION, id, parentId, relativeId, value, value.hashCode(), sha);
     }
 
     public List<Explorable> getChildren(Explorable parent) throws ExplorationException {

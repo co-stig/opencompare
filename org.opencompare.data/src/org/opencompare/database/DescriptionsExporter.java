@@ -17,7 +17,8 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.opencompare.explorable.Configuration;
+import org.opencompare.explorable.ApplicationConfiguration;
+import org.opencompare.explorable.ProcessConfiguration;
 import org.opencompare.explorable.Description;
 import org.opencompare.explore.ExplorationException;
 import org.w3c.dom.Document;
@@ -32,8 +33,10 @@ public class DescriptionsExporter {
 	private static final String DESCRIPTION = Description.class.getSimpleName();
 	
 	private final JdbcDescriptionsDatabase database;
+	private final ProcessConfiguration config;
 	
-	public DescriptionsExporter(JdbcDescriptionsDatabase database) throws ExplorationException {
+	public DescriptionsExporter(ProcessConfiguration config, JdbcDescriptionsDatabase database) throws ExplorationException {
+		this.config = config;
 		this.database = database;
 	}
 
@@ -166,8 +169,8 @@ public class DescriptionsExporter {
 
 		Description newDesc = 
 				parent == null ? 
-				(Description) Configuration.createExplorable(DESCRIPTION, 1, parentId, relativeId, value, value.hashCode(), null) : 
-				(Description) Configuration.createExplorable(parent, DESCRIPTION, parentId, relativeId, value);
+				(Description) ApplicationConfiguration.getInstance().createExplorable(DESCRIPTION, 1, parentId, relativeId, value, value.hashCode(), null) : 
+				(Description) ApplicationConfiguration.getInstance().createExplorable(config, database, parent, DESCRIPTION, parentId, relativeId, value);
 				
 		newDesc.calculateSha(parent == null ? null : parent.getTempFullId());
 
@@ -214,7 +217,10 @@ public class DescriptionsExporter {
 	}
 
 	public static void main(String[] args) throws ExplorationException, SAXException, IOException, ParserConfigurationException, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
-		DescriptionsExporter de = new DescriptionsExporter((JdbcDescriptionsDatabase) DatabaseManagerFactory.get().newDescriptionsConnection());
+		DescriptionsExporter de = new DescriptionsExporter(
+				new ProcessConfiguration(),
+				(JdbcDescriptionsDatabase) DatabaseManagerFactory.get().newDescriptionsConnection()
+			);
 		de.importFromXml(new File("c:\\db\\update.xml"));
 	}
 }

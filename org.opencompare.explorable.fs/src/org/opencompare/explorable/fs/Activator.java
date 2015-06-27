@@ -2,7 +2,8 @@ package org.opencompare.explorable.fs;
 
 import java.util.zip.ZipFile;
 
-import org.opencompare.explorable.Configuration;
+import org.opencompare.explorable.ApplicationConfiguration;
+import org.opencompare.explorable.OptionDefinition;
 import org.opencompare.explorable.Root;
 import org.opencompare.explorable.files.FileFactory;
 import org.opencompare.explorable.files.Folder;
@@ -19,17 +20,36 @@ public class Activator implements BundleActivator {
 		System.out.println("Initializing filesystem factories: START");
 		
 		FileFactory fileFactory = new FileFactory();
+		ApplicationConfiguration appConfig = ApplicationConfiguration.getInstance();
 		
-		Configuration.registerExplorableFactory(SimpleFile.class.getSimpleName(), fileFactory);
-		Configuration.registerExplorableFactory(Folder.class.getSimpleName(), fileFactory);
-		Configuration.registerExplorableFactory(ZipFile.class.getSimpleName(), fileFactory);
+		appConfig.registerExplorableFactory(SimpleFile.class.getSimpleName(), fileFactory);
+		appConfig.registerExplorableFactory(Folder.class.getSimpleName(), fileFactory);
+		appConfig.registerExplorableFactory(ZipFile.class.getSimpleName(), fileFactory);
 
-		Configuration.registerExplorer(SimpleFile.class.getSimpleName(), new NoExplorer());
-		Configuration.registerExplorer(Folder.class.getSimpleName(), new FolderExplorer());
-		Configuration.registerExplorer(ZipFile.class.getSimpleName(), new ZipFileExplorer());
+		appConfig.registerExplorer(SimpleFile.class.getSimpleName(), new NoExplorer());
+		appConfig.registerExplorer(Folder.class.getSimpleName(), new FolderExplorer());
+		appConfig.registerExplorer(ZipFile.class.getSimpleName(), new ZipFileExplorer());
 		
-		Configuration.registerExplorer(Root.class.getSimpleName(), new FolderExplorer());
+		appConfig.registerExplorer(Root.class.getSimpleName(), new FolderExplorer());
+
+		appConfig.addOptionDefinition(
+				OptionDefinition.newTextOption(
+						FolderExplorer.OPTION_ROOT, 
+						"Root folder", 
+						"",
+						true
+					)
+			);
 		
+		appConfig.addOptionDefinition(
+				OptionDefinition.newYesNoOption(
+						FileFactory.OPTION_ZIP, 
+						"Explore ZIP files", 
+						true,
+						false
+					)
+			);
+
 		System.out.println("Initializing filesystem factories: FINISH");
 	}
 

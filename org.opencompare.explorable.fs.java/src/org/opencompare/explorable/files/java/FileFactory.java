@@ -3,9 +3,10 @@ package org.opencompare.explorable.files.java;
 import java.io.File;
 import java.util.Arrays;
 
-import org.opencompare.explorable.Configuration;
+import org.opencompare.database.IdGenerator;
 import org.opencompare.explorable.Explorable;
 import org.opencompare.explorable.ExplorableFactory;
+import org.opencompare.explorable.ProcessConfiguration;
 import org.opencompare.explorable.files.SimpleFile;
 import org.opencompare.explore.ExplorationException;
 
@@ -31,18 +32,18 @@ public class FileFactory implements ExplorableFactory {
 	}
 
 	@Override
-	public Explorable createExplorable(Explorable origin, String type, Object... params) throws ExplorationException {
+	public Explorable createExplorable(ProcessConfiguration config, IdGenerator idGenerator, Explorable origin, String type, Object... params) throws ExplorationException {
 		System.out.println("org.opencompare.explorable.files.js.FileFactory.newExplorable2(" + origin + ", " + type + ", " + Arrays.toString(params) + ")");
 		if (type.equals(TYPE_SIMPLE)) {
 			File path = (File) params[0];
 			String filename = path.getName().toLowerCase();
 			if (filename.endsWith(".properties") || filename.endsWith(".rbinfo")) {
-				return new PropertiesFile(Configuration.getSharedDatabase().nextId(), origin.getId(), path);
+				return new PropertiesFile(idGenerator.nextId(), origin.getId(), path);
 			} else if (filename.endsWith(".xconf")) {
-				return new XConfFile(Configuration.getSharedDatabase().nextId(), origin.getId(), path);
+				return new XConfFile(idGenerator.nextId(), origin.getId(), path);
 			}
 		}
 		return null;
 	}
-	
+
 }

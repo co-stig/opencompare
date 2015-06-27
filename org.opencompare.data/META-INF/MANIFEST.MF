@@ -11,5 +11,6 @@ Import-Package: javax.xml.parsers,
 Bundle-ClassPath: lib/commons-cli-1.2.jar,
  lib/derby.jar,
  .
-Export-Package: org.opencompare.database
+Export-Package: org.apache.commons.cli,
+ org.opencompare.database
 Require-Bundle: org.opencompare.core

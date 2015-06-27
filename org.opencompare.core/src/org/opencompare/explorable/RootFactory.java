@@ -2,6 +2,7 @@ package org.opencompare.explorable;
 
 import java.util.Arrays;
 
+import org.opencompare.database.IdGenerator;
 import org.opencompare.explore.ExplorationException;
 
 @Creates({Root.class, Property.class, ThreadControllExplorable.class, Conflict.class, Description.class})
@@ -36,11 +37,11 @@ public class RootFactory implements ExplorableFactory {
 	}
 
 	@Override
-	public Explorable createExplorable(Explorable origin, String type, Object... params) throws ExplorationException {
+	public Explorable createExplorable(ProcessConfiguration config, IdGenerator idGenerator, Explorable origin, String type, Object... params) throws ExplorationException {
 		System.out.println("org.opencompare.explorable.RootFactory.newExplorable2(" + origin + ", " + type + ", " + Arrays.toString(params) + ")");
 		if (type.equals(TYPE_PROPERTY)) {
 			return new Property(
-					Configuration.getSharedDatabase().nextId(),				// int id 
+					idGenerator.nextId(),				// int id 
 					origin.getId(), 										// int parentId
 					(String) params[0] == null ? "" : (String) params[0], 	// String name
 					(String) params[1] == null ? "" : (String) params[1]	// String value
@@ -48,7 +49,7 @@ public class RootFactory implements ExplorableFactory {
 		} else if (type.equals(TYPE_CONFLICT)) {
 			Integer optionalId = (Integer) params[0];
 			return new Conflict(
-					optionalId > 0 ? optionalId : Configuration.getSharedDatabase().nextId(),	// int id 
+					optionalId > 0 ? optionalId : idGenerator.nextId(),	// int id 
 					(Integer) params[1], 														// int parentId
 					(Explorable) params[2], 													// Explorable reference
 					(Explorable) params[3], 													// Explorable actual
@@ -61,5 +62,5 @@ public class RootFactory implements ExplorableFactory {
 			throw new ExplorationException("Unsupported type: " + type);
 		}
 	}
-	
+
 }

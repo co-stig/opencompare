@@ -5,24 +5,22 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map.Entry;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Properties;
 
 import org.opencompare.explorable.Explorable;
+import org.opencompare.explorable.ProcessConfiguration;
 import org.opencompare.explorable.RootFactory;
 import org.opencompare.explorable.files.java.PropertiesFile;
 import org.opencompare.explore.ExplorationException;
 import org.opencompare.explore.ExploringThread;
 import org.opencompare.explorers.Explorer;
-import org.opencompare.explorers.ExplorerProperty;
 import org.opencompare.explorers.Explores;
 
 @Explores(PropertiesFile.class)
 public class PropertiesFileExplorer implements Explorer {
 
     @Override
-	public void explore(ExploringThread thread, Explorable what) throws ExplorationException, InterruptedException {
+	public void explore(ProcessConfiguration config, ExploringThread thread, Explorable what) throws ExplorationException, InterruptedException {
     	PropertiesFile file = (PropertiesFile) what;
     	
 		Properties p = new Properties();
@@ -43,10 +41,5 @@ public class PropertiesFileExplorer implements Explorer {
 			thread.enqueue(file, RootFactory.TYPE_PROPERTY, (String) e.getKey(), (String) e.getValue());
 		}
 	}
-    
-	@Override
-	@SuppressWarnings("unchecked")
-	public Collection<ExplorerProperty> getProperties() {
-		return Collections.EMPTY_LIST;
-	}
+
 }

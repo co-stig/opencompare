@@ -6,10 +6,11 @@ import java.util.TreeSet;
 
 import org.opencompare.StoppableThread;
 import org.opencompare.database.Database;
-import org.opencompare.explorable.Configuration;
+import org.opencompare.explorable.ApplicationConfiguration;
 import org.opencompare.explorable.Conflict;
 import org.opencompare.explorable.ConflictType;
 import org.opencompare.explorable.Explorable;
+import org.opencompare.explorable.ProcessConfiguration;
 import org.opencompare.explore.ExplorationException;
 import org.opencompare.explore.ExplorationProgressThread;
 
@@ -21,13 +22,15 @@ public class CompareThread extends StoppableThread {
 
 	private final static String CONFLICT = Conflict.class.getSimpleName();
 	
+	private final ProcessConfiguration config;
     private final Database actualDatabase;
     private final Database referenceDatabase;
     private final Database conflictsDatabase;
     private final ExplorationProgressThread progress;
 
-    public CompareThread(Database actual, Database reference, Database conflicts, ExplorationProgressThread progress) {
-        this.actualDatabase = actual;
+    public CompareThread(ProcessConfiguration config, Database actual, Database reference, Database conflicts, ExplorationProgressThread progress) {
+    	this.config = config;
+    	this.actualDatabase = actual;
         this.referenceDatabase = reference;
         this.conflictsDatabase = conflicts;
         this.progress = progress;
@@ -45,21 +48,21 @@ public class CompareThread extends StoppableThread {
 
         if (actual == null && reference != null) {
             // Add reference children recursively
-            res = (Conflict) Configuration.createExplorable(parent, CONFLICT, id, parentId, reference, null, ConflictType.Missing, null);
+            res = (Conflict) ApplicationConfiguration.getInstance().createExplorable(config, conflictsDatabase, parent, CONFLICT, id, parentId, reference, null, ConflictType.Missing, null);
             System.out.println(" * ANR created conflict: " + res);
             for (Explorable referenceChild : referenceDatabase.getChildren(reference)) {
                 compareRecursive(referenceChild, null, res);
             }
         } else if (actual != null && reference == null) {
             // Add actual children recursively 
-            res = (Conflict) Configuration.createExplorable(parent, CONFLICT, id, parentId, null, actual, ConflictType.New, null);
+            res = (Conflict) ApplicationConfiguration.getInstance().createExplorable(config, conflictsDatabase, parent, CONFLICT, id, parentId, null, actual, ConflictType.New, null);
             System.out.println(" * ARN created conflict: " + res);
             for (Explorable actualChild : actualDatabase.getChildren(actual)) {
                 compareRecursive(null, actualChild, res);
             }
         } else if (actual != null && reference != null) {
         	// Add actual children recursively 
-       		res = (Conflict) Configuration.createExplorable(parent, CONFLICT, id, parentId, reference, actual, null, null);
+       		res = (Conflict) ApplicationConfiguration.getInstance().createExplorable(config, conflictsDatabase, parent, CONFLICT, id, parentId, reference, actual, null, null);
        		System.out.println(" * AR created conflict: " + res);
             ConflictType childrenConflictType = compareBothRecursive(reference, actual, res);
             res.setType(childrenConflictType);

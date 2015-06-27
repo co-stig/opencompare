@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.opencompare.Snapshot;
-import org.opencompare.explorable.Configuration;
+import org.opencompare.explorable.ApplicationConfiguration;
 import org.opencompare.explorable.Conflict;
 import org.opencompare.explorable.ConflictType;
 import org.opencompare.explorable.Explorable;
@@ -230,7 +230,7 @@ class JdbcConflictsDatabase extends AbstractJdbcDatabase {
         	int rParentId = rs.getInt(10);
         	String rSha = rs.getString(11);
         	
-        	reference = Configuration.createExplorable(rType, rId, rParentId, rRelativeId, rValue, rHash, rSha);
+        	reference = ApplicationConfiguration.getInstance().createExplorable(rType, rId, rParentId, rRelativeId, rValue, rHash, rSha);
         }
         
         Explorable actual = null;
@@ -243,10 +243,10 @@ class JdbcConflictsDatabase extends AbstractJdbcDatabase {
 	        int aParentId = rs.getInt(17);
 	        String aSha = rs.getString(18);
 	        
-	        actual = Configuration.createExplorable(aType, aId, aParentId, aRelativeId, aValue, aHash, aSha);
+	        actual = ApplicationConfiguration.getInstance().createExplorable(aType, aId, aParentId, aRelativeId, aValue, aHash, aSha);
         }
         
-        return Configuration.createExplorable(null, CONFLICT, id, parentId, reference, actual, type, comment);
+        return ApplicationConfiguration.getInstance().createExplorable(null, this, null, CONFLICT, id, parentId, reference, actual, type, comment);
     }
 
     public List<Explorable> getChildren(Explorable parent) throws ExplorationException {

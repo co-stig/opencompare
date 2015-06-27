@@ -10,6 +10,7 @@ import org.opencompare.ExploreApplication;
 import org.opencompare.Snapshot;
 import org.opencompare.WithProgress;
 import org.opencompare.database.DatabaseManagerFactory;
+import org.opencompare.explorable.ProcessConfiguration;
 
 public class CompareSnapshotsDialog extends javax.swing.JDialog implements WithProgress {
 
@@ -209,7 +210,8 @@ public class CompareSnapshotsDialog extends javax.swing.JDialog implements WithP
     private void buttonNewReferenceSnapshotActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonNewReferenceSnapshotActionPerformed
         CreateSnapshotDialog wizard = new CreateSnapshotDialog(null, true);
         wizard.setVisible(true);
-        refreshComboboxes(DatabaseManagerFactory.get().getSnapshot(wizard.getSnapshotName()), null);
+        String snapshotName = wizard.getOptionValue(ExploreApplication.OPTION_SNAPSHOT_NAME).getStringValue();
+        refreshComboboxes(DatabaseManagerFactory.get().getSnapshot(snapshotName), null);
     }//GEN-LAST:event_buttonNewReferenceSnapshotActionPerformed
 
     private void buttonActionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonActionActionPerformed
@@ -230,7 +232,8 @@ public class CompareSnapshotsDialog extends javax.swing.JDialog implements WithP
     private void buttonNewActualSnapshotActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonNewActualSnapshotActionPerformed
         CreateSnapshotDialog wizard = new CreateSnapshotDialog(null, true);
         wizard.setVisible(true);
-        refreshComboboxes(null, wizard.getSnapshotName());
+        String snapshotName = wizard.getOptionValue(ExploreApplication.OPTION_SNAPSHOT_NAME).getStringValue();
+		refreshComboboxes(null, snapshotName);
     }//GEN-LAST:event_buttonNewActualSnapshotActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -273,16 +276,17 @@ public class CompareSnapshotsDialog extends javax.swing.JDialog implements WithP
     }
 
     private void compareSnapshots() {
-        final WithProgress thiz = this;
-        
         new Thread(new Runnable() {
             public void run() {
                 try {
+            		ProcessConfiguration config = new ProcessConfiguration();
+            		config.getOption(ExploreApplication.OPTION_SNAPSHOT_NAME).setValue(editConflictSnapshot.getText());
+
                     Snapshot snap = ExploreApplication.compare(
+                    		config,
                             (Snapshot) selectReferenceSnapshot.getSelectedItem(),
                             (Snapshot) selectActualSnapshot.getSelectedItem(),
-                            editConflictSnapshot.getText(),
-                            thiz
+                            CompareSnapshotsDialog.this
                         );
                     mainWindow.refreshSnapshotList();
                     mainWindow.viewSnapshot(snap);

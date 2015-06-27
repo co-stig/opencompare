@@ -1,18 +1,16 @@
 package org.opencompare.explorers.files.java;
 
 import java.io.ByteArrayInputStream;
-import java.util.Collection;
-import java.util.Collections;
 
 import javax.xml.parsers.SAXParserFactory;
 
 import org.opencompare.explorable.Explorable;
+import org.opencompare.explorable.ProcessConfiguration;
 import org.opencompare.explorable.RootFactory;
 import org.opencompare.explorable.files.java.XConfFile;
 import org.opencompare.explore.ExplorationException;
 import org.opencompare.explore.ExploringThread;
 import org.opencompare.explorers.Explorer;
-import org.opencompare.explorers.ExplorerProperty;
 import org.opencompare.explorers.Explores;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -138,7 +136,7 @@ public class XConfFileExplorer implements Explorer {
     }
 
     @Override
-    public void explore(ExploringThread thread, Explorable what) throws ExplorationException {
+    public void explore(ProcessConfiguration config, ExploringThread thread, Explorable what) throws ExplorationException {
         try {
         	XConfFile file = (XConfFile) what;
             XConfParser handler = new XConfParser(file, thread);
@@ -148,9 +146,4 @@ public class XConfFileExplorer implements Explorer {
         }
     }
 
-	@Override
-	@SuppressWarnings("unchecked")
-	public Collection<ExplorerProperty> getProperties() {
-		return Collections.EMPTY_SET;
-	}
 }
