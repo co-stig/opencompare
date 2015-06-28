@@ -1,5 +1,7 @@
 package org.opencompare.explorable.fs;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.ZipFile;
 
 import org.opencompare.explorable.ApplicationConfiguration;
@@ -16,8 +18,10 @@ import org.osgi.framework.BundleContext;
 
 public class Activator implements BundleActivator {
 
-	public void start(BundleContext bundleContext) throws Exception {
-		System.out.println("Initializing filesystem factories: START");
+    private final Logger log = Logger.getLogger(Activator.class.getName());
+
+    public void start(BundleContext bundleContext) throws Exception {
+		if (log.isLoggable(Level.FINE)) log.fine("Initializing filesystem factories: START");
 		
 		FileFactory fileFactory = new FileFactory();
 		ApplicationConfiguration appConfig = ApplicationConfiguration.getInstance();
@@ -50,11 +54,11 @@ public class Activator implements BundleActivator {
 					)
 			);
 
-		System.out.println("Initializing filesystem factories: FINISH");
+		if (log.isLoggable(Level.FINE)) log.fine("Initializing filesystem factories: FINISH");
 	}
 
 	public void stop(BundleContext bundleContext) throws Exception {
-		System.out.println("Unloading filesystem factories");
+		if (log.isLoggable(Level.FINE)) log.fine("Unloading filesystem factories");
 		
 		// TODO: Unregister
 	}

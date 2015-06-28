@@ -3,11 +3,13 @@ package org.opencompare.explore;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.opencompare.database.Database;
 import org.opencompare.explorable.ApplicationConfiguration;
-import org.opencompare.explorable.ProcessConfiguration;
 import org.opencompare.explorable.Explorable;
+import org.opencompare.explorable.ProcessConfiguration;
 import org.opencompare.explorable.ThreadControllExplorable;
 import org.opencompare.explorers.Explorer;
 
@@ -16,6 +18,8 @@ public class ExploringThread extends Thread {
     public static final AtomicInteger exploringCount = new AtomicInteger(0);
     private final ProcessConfiguration config;
     private final Database threadDatabase;
+    
+    private final Logger log = Logger.getLogger(ExploringThread.class.getName());
 
     public ExploringThread(ProcessConfiguration config, Database threadDatabase) {
     	this.config = config;
@@ -57,7 +61,7 @@ public class ExploringThread extends Thread {
                 } catch (InterruptedException e) {
                     break;
                 } catch (ExplorationException e) {
-                    System.out.println("ERROR while exploring: " + e.getMessage());
+                    if (log.isLoggable(Level.SEVERE)) log.severe("ERROR while exploring: " + e.getMessage());
                     e.printStackTrace();
                 } finally {
                     exploringCount.decrementAndGet();
@@ -68,11 +72,11 @@ public class ExploringThread extends Thread {
                 try {
                     threadDatabase.close();
                 } catch (IOException ex) {
-                    System.out.println("ERROR while closing the database for an exploration thread: " + ex.getMessage());
+                    if (log.isLoggable(Level.SEVERE)) log.severe("ERROR while closing the database for an exploration thread: " + ex.getMessage());
                     ex.printStackTrace();
                 }
             }
-            System.out.println("Exiting ExploringThread");
+            if (log.isLoggable(Level.FINE)) log.fine("Exiting ExploringThread");
         }
     }
     

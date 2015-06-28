@@ -13,6 +13,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.opencompare.Snapshot;
 import org.opencompare.explorable.ApplicationConfiguration;
@@ -58,6 +60,8 @@ public class JdbcDescriptionsDatabase extends AbstractJdbcDatabase implements De
     static final String SQL_SELECT_DESCRIPTIONS_COUNT = "SELECT COUNT(*) FROM %TABLE%";
     private PreparedStatement stmtSelectDescriptionsCount;
     
+    private final Logger log = Logger.getLogger(JdbcDescriptionsDatabase.class.getName());
+    
     public JdbcDescriptionsDatabase(Snapshot snapshot, boolean createNew) throws SQLException, ClassNotFoundException, ExplorationException {
     	super(snapshot);
     	
@@ -82,7 +86,7 @@ public class JdbcDescriptionsDatabase extends AbstractJdbcDatabase implements De
     }
 
     private void openConnection(String name, boolean create) throws ClassNotFoundException, SQLException {
-    	System.out.println("Opening connection " + getSnapshot());
+    	if (log.isLoggable(Level.FINE)) log.fine("Opening connection " + getSnapshot());
     	
         System.setProperty("derby.system.home", JdbcDatabaseManager.getDbFolder());
         Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
@@ -248,7 +252,7 @@ public class JdbcDescriptionsDatabase extends AbstractJdbcDatabase implements De
 
     public void close() throws IOException {
         try {
-        	System.out.println("Closing connection " + getSnapshot());
+        	if (log.isLoggable(Level.FINE)) log.fine("Closing connection " + getSnapshot());
         	
             stmtInsertDescription.close();
             stmtSelectChildDescriptions.close();

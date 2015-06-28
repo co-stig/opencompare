@@ -1,18 +1,23 @@
 package org.opencompare.database;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 public class Activator implements BundleActivator {
 
-	public void start(BundleContext context) throws Exception {
+    private final Logger log = Logger.getLogger(Activator.class.getName());
+
+    public void start(BundleContext context) throws Exception {
 		DatabaseManagerFactory.register(new JdbcDatabaseManager());
-		System.out.println("Registered JDBC database manager: " + JdbcDatabaseManager.getDbFolder());
+		if (log.isLoggable(Level.FINE)) log.fine("Registered JDBC database manager: " + JdbcDatabaseManager.getDbFolder());
 	}
 	
 	public void stop(BundleContext context) throws Exception {
 		DatabaseManagerFactory.unregister();
-		System.out.println("Unregistered database manager");
+		if (log.isLoggable(Level.FINE)) log.fine("Unregistered database manager");
 	}
 
 }

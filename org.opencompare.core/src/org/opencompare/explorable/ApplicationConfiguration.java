@@ -11,12 +11,16 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.opencompare.database.IdGenerator;
 import org.opencompare.explore.ExplorationException;
 import org.opencompare.explorers.Explorer;
 
 public class ApplicationConfiguration {
+
+	private final Logger log = Logger.getLogger(ApplicationConfiguration.class.getName());
 
 	private final Map<String, LinkedList<ExplorableFactory>> explorableFactories = new HashMap<String, LinkedList<ExplorableFactory>>();
 	private final Map<String, LinkedList<Explorer>> explorers = new HashMap<String, LinkedList<Explorer>>();
@@ -100,7 +104,7 @@ public class ApplicationConfiguration {
 			LinkedList<ExplorableFactory> factories = explorableFactories.get(type);
 			if (factories != null && !factories.isEmpty()) {
 				for (ExplorableFactory factory : factories) {
-					System.out.println("For type " + type + ": checking factory " + factory + " out of " + factories);
+					if (log.isLoggable(Level.FINEST)) log.finest("For type " + type + ": checking factory " + factory + " out of " + factories);
 					Explorable e = factory.createExplorable(config, idGenerator, origin, type, params);
 					if (e != null) {
 						return e;
@@ -119,7 +123,7 @@ public class ApplicationConfiguration {
 			LinkedList<ExplorableFactory> factories = explorableFactories.get(type);
 			if (factories != null && !factories.isEmpty()) {
 				for (ExplorableFactory factory : factories) {
-					System.out.println("For type " + type + ": checking factory " + factory + " out of " + factories);
+					if (log.isLoggable(Level.FINEST)) log.finest("For type " + type + ": checking factory " + factory + " out of " + factories);
 					Explorable e = factory.parseExplorable(type, id, parentId, relativeId, value, hash, sha);
 					if (e != null) {
 						return e;

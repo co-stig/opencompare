@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.opencompare.Snapshot;
 import org.opencompare.explorable.Conflict;
@@ -19,6 +21,7 @@ abstract class AbstractJdbcDatabase implements Database {
 	private final static Map<String, Integer> sequences = new HashMap<String, Integer>();
 	
     private final Snapshot snapshot;
+    private final Logger log = Logger.getLogger(AbstractJdbcDatabase.class.getName());
     
     protected Connection connection;
     
@@ -76,7 +79,7 @@ abstract class AbstractJdbcDatabase implements Database {
                 ++out;
             }
         }
-        System.out.println("Included " + in + ", excluded " + out);
+        if (log.isLoggable(Level.FINEST)) log.finest("Included " + in + ", excluded " + out);
         return res;
     }
 

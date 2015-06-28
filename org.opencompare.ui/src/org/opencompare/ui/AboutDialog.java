@@ -33,7 +33,7 @@ public class AboutDialog extends javax.swing.JDialog {
         setModal(true);
         setResizable(false);
 
-        image.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/opencompare/ui/images/about.png"))); // NOI18N
+        image.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/opencompare/ui/images/about.jpg"))); // NOI18N
         image.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 imageMouseClicked(evt);

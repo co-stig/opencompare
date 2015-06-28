@@ -2,6 +2,8 @@ package org.opencompare.explorers.files;
 
 import java.io.File;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.opencompare.core.FolderDisposer;
 import org.opencompare.core.ZipUtility;
@@ -22,6 +24,8 @@ public class ZipFileExplorer implements Explorer {
 	private static final String TEMP_DIR_FORMAT = "opencompare." + "%s" + File.separator + "%s.%d.%d";
 	private static final Random RAND = new Random();
 	
+    private final Logger log = Logger.getLogger(ZipFileExplorer.class.getName());
+
     @Override
 	public void explore(ProcessConfiguration config, ExploringThread thread, Explorable parent) throws ExplorationException {
 		try {
@@ -31,10 +35,10 @@ public class ZipFileExplorer implements Explorer {
 			File tempFolder = getTempFolder(zipFile.getName());
 			tempFolder.mkdirs();
 			
-			System.out.print("Unzipping " + zipFile + " to " + tempFolder + "... ");
+			if (log.isLoggable(Level.FINE)) log.fine("Unzipping " + zipFile + " to " + tempFolder + "... ");
 			ZipUtility.unzip(zipFile, tempFolder, null);
 			config.closeOnFinish(new FolderDisposer(tempFolder));
-			System.out.println("Done.");
+			if (log.isLoggable(Level.FINE)) log.fine("Done.");
 			
 			File[] files = tempFolder.listFiles();
 			if (files != null && files.length > 0) { // Yes, it can be null under Windows for virtual folders like "My Music"

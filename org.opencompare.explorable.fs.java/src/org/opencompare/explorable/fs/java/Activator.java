@@ -1,5 +1,8 @@
 package org.opencompare.explorable.fs.java;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.opencompare.explorable.ApplicationConfiguration;
 import org.opencompare.explorable.OptionDefinition;
 import org.opencompare.explorable.files.SimpleFile;
@@ -14,8 +17,10 @@ import org.osgi.framework.BundleContext;
 
 public class Activator implements BundleActivator {
 
-	public void start(BundleContext bundleContext) throws Exception {
-		System.out.println("Initializing Java filesystem factories: START");
+    private final Logger log = Logger.getLogger(Activator.class.getName());
+
+    public void start(BundleContext bundleContext) throws Exception {
+		if (log.isLoggable(Level.FINE)) log.fine("Initializing Java filesystem factories: START");
 		
 		FileFactory fileFactory = new FileFactory();
 		ApplicationConfiguration appConfig = ApplicationConfiguration.getInstance();
@@ -46,11 +51,11 @@ public class Activator implements BundleActivator {
 					)
 			);
 
-		System.out.println("Initializing Java filesystem factories: FINISH");
+		if (log.isLoggable(Level.FINE)) log.fine("Initializing Java filesystem factories: FINISH");
 	}
 
 	public void stop(BundleContext bundleContext) throws Exception {
-		System.out.println("Unloading Java filesystem factories");
+		if (log.isLoggable(Level.FINE)) log.fine("Unloading Java filesystem factories");
 		
 		// TODO: Unregister
 	}

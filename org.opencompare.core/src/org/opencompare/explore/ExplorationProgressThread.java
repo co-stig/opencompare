@@ -3,19 +3,24 @@ package org.opencompare.explore;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.opencompare.WithProgress;
 import org.opencompare.database.Database;
 
 public class ExplorationProgressThread extends Thread {
 
-    private static final SimpleDateFormat TIMESTAMP_FORMAT = new SimpleDateFormat("HH:mm:ss");
-    private final Database database;
+	private static final SimpleDateFormat TIMESTAMP_FORMAT = new SimpleDateFormat("HH:mm:ss");
+    
+	private final Database database;
     private final int outputInterval;
     private final WithProgress progress;
     private final AtomicBoolean stopFlag = new AtomicBoolean(false);
     private final int estimatedSize;
     private final boolean filesOnly;
+    
+    private final Logger log = Logger.getLogger(ExplorationProgressThread.class.getName());
 
     public ExplorationProgressThread(Database database, int outputInterval, WithProgress progress, int estimatedSize, boolean filesOnly) {
         this.database = database;
@@ -32,18 +37,18 @@ public class ExplorationProgressThread extends Thread {
         while (!isInterrupted() && !stopFlag.get()) {
             try {
                 int value = filesOnly ? database.sizeFilesOnly() : database.size();
-                System.out.println(TIMESTAMP_FORMAT.format(new Date()) + ": " + value);
+                if (log.isLoggable(Level.FINEST)) log.finest(TIMESTAMP_FORMAT.format(new Date()) + ": " + value);
                 progress.setValue(value);
                 Thread.sleep(outputInterval);
             } catch (ExplorationException ex) {
-                System.out.println("Error while outputting database content: " + ex.getMessage());
+                if (log.isLoggable(Level.SEVERE)) log.severe("Error while outputting database content: " + ex.getMessage());
                 ex.printStackTrace();
             } catch (InterruptedException e) {
                 break;
             }
         }
         
-        System.out.println("Exiting ExplorationProgressThread");
+        if (log.isLoggable(Level.FINE)) log.fine("Exiting ExplorationProgressThread");
         // TODO: We can indicate that something went wrong here
         progress.complete(true);
     }

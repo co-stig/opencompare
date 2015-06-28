@@ -3,6 +3,8 @@ package org.opencompare.compare;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.opencompare.StoppableThread;
 import org.opencompare.database.Database;
@@ -22,6 +24,8 @@ public class CompareThread extends StoppableThread {
 
 	private final static String CONFLICT = Conflict.class.getSimpleName();
 	
+	private final Logger log = Logger.getLogger(CompareThread.class.getName());
+
 	private final ProcessConfiguration config;
     private final Database actualDatabase;
     private final Database referenceDatabase;
@@ -37,7 +41,7 @@ public class CompareThread extends StoppableThread {
     }
 
     private Conflict compareRecursive(Explorable reference, Explorable actual, Conflict parent) throws ExplorationException {
-    	System.out.println("compareRecursive(" + reference + ", " + actual + ", " + parent + ")");
+    	if (log.isLoggable(Level.FINER)) log.finer("compareRecursive(" + reference + ", " + actual + ", " + parent + ")");
         if (isStopped()) {
             throw new ExplorationException("The thread is stopped (comparison cancelled)");
         }
@@ -49,21 +53,21 @@ public class CompareThread extends StoppableThread {
         if (actual == null && reference != null) {
             // Add reference children recursively
             res = (Conflict) ApplicationConfiguration.getInstance().createExplorable(config, conflictsDatabase, parent, CONFLICT, id, parentId, reference, null, ConflictType.Missing, null);
-            System.out.println(" * ANR created conflict: " + res);
+            if (log.isLoggable(Level.FINEST)) log.finest(" * ANR created conflict: " + res);
             for (Explorable referenceChild : referenceDatabase.getChildren(reference)) {
                 compareRecursive(referenceChild, null, res);
             }
         } else if (actual != null && reference == null) {
             // Add actual children recursively 
             res = (Conflict) ApplicationConfiguration.getInstance().createExplorable(config, conflictsDatabase, parent, CONFLICT, id, parentId, null, actual, ConflictType.New, null);
-            System.out.println(" * ARN created conflict: " + res);
+            if (log.isLoggable(Level.FINEST)) log.finest(" * ARN created conflict: " + res);
             for (Explorable actualChild : actualDatabase.getChildren(actual)) {
                 compareRecursive(null, actualChild, res);
             }
         } else if (actual != null && reference != null) {
         	// Add actual children recursively 
        		res = (Conflict) ApplicationConfiguration.getInstance().createExplorable(config, conflictsDatabase, parent, CONFLICT, id, parentId, reference, actual, null, null);
-       		System.out.println(" * AR created conflict: " + res);
+       		if (log.isLoggable(Level.FINEST)) log.finest(" * AR created conflict: " + res);
             ConflictType childrenConflictType = compareBothRecursive(reference, actual, res);
             res.setType(childrenConflictType);
         } else {
@@ -128,11 +132,11 @@ public class CompareThread extends StoppableThread {
         try {
             compareRecursive(referenceDatabase.getRoot(), actualDatabase.getRoot(), null);
         } catch (Exception ex) {
-            System.out.println("Unable to compare snapshots, or the thread is stopped");
+            if (log.isLoggable(Level.SEVERE)) log.fine("Unable to compare snapshots, or the thread is stopped");
             ex.printStackTrace();
         } finally {
             progress.stopThread();
-            System.out.println("Exiting CompareThread");
+            if (log.isLoggable(Level.FINE)) log.fine("Exiting CompareThread");
         }
     }
 }

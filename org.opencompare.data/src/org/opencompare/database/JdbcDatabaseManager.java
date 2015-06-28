@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.opencompare.Snapshot;
 import org.opencompare.Snapshot.State;
@@ -19,7 +21,9 @@ public class JdbcDatabaseManager implements DatabaseManager {
 	private final static String DESCRIPTIONS_DB = "descriptions";
 	private final static String DB_FOLDER = System.getProperty("db.folder", DEFAULT_DB_FOLDER);
 
-	public synchronized Snapshot createExplorablesDatabase(String name) throws ExplorationException {
+    private final Logger log = Logger.getLogger(JdbcDatabaseManager.class.getName());
+
+    public synchronized Snapshot createExplorablesDatabase(String name) throws ExplorationException {
 		JdbcExplorablesDatabase db = null;
 		try {
 			Snapshot s = new Snapshot(getSnapshotFolder(name), name, "1.0", null, null, "Explorables", State.Empty, Type.Snapshot);
@@ -151,7 +155,7 @@ public class JdbcDatabaseManager implements DatabaseManager {
                                             );
 					progress.complete(true);
 				} catch (Exception ex) {
-					System.out.println("Unable to unzip snapshot: " + input);
+					if (log.isLoggable(Level.FINE)) log.fine("Unable to unzip snapshot: " + input);
 					ex.printStackTrace();
 					progress.complete(false);
 				}
@@ -173,7 +177,7 @@ public class JdbcDatabaseManager implements DatabaseManager {
                                             );
 					progress.complete(true);
 				} catch (Exception ex) {
-					System.out.println("Unable to zip snapshot: " + snapshot);
+					if (log.isLoggable(Level.FINE)) log.fine("Unable to zip snapshot: " + snapshot);
 					ex.printStackTrace();
 					progress.complete(false);
 				}

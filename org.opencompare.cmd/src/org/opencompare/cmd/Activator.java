@@ -16,15 +16,13 @@ public class Activator implements BundleActivator {
 	
 	// TODO: Implement a proper command-line interface
 	public void start(BundleContext context) throws Exception {
-		if (log.isLoggable(Level.FINE)) {
-			log.fine("Starting exploration...");
-		}
+		if (log.isLoggable(Level.FINE)) log.fine("Starting exploration...");
 
     	WithProgress dummyProgress = new WithProgress() {
-			public void start() { System.out.println("Started"); }
+			public void start() { if (log.isLoggable(Level.FINE)) log.fine("Started"); }
 			public void setValue(int value) { }
 			public void setMaximum(int max) { }
-			public void complete(boolean success) { System.out.println("Completed successfully: " + success); }
+			public void complete(boolean success) { if (log.isLoggable(Level.FINE)) log.fine("Completed successfully: " + success); }
 		};
     	 
 		ProcessConfiguration confRef = new ProcessConfiguration();
@@ -41,7 +39,7 @@ public class Activator implements BundleActivator {
 		confDiff.getOption(ExploreApplication.OPTION_SNAPSHOT_NAME).setValue("diff");
     	ExploreApplication.compare(confDiff, ref, actual, dummyProgress);
 
-		System.out.println("Finished exploration");
+		if (log.isLoggable(Level.FINE)) log.fine("Finished exploration");
 	}
 	
 	public void stop(BundleContext context) throws Exception {

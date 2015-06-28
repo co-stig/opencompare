@@ -7,6 +7,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.opencompare.Snapshot;
 import org.opencompare.explorable.ApplicationConfiguration;
@@ -50,6 +52,8 @@ public class JdbcExplorablesDatabase extends AbstractJdbcDatabase {
     static final String SQL_SELECT_FILES_COUNT = "SELECT COUNT(*) FROM %TABLE% WHERE type IN ('SimpleFile', 'PropertiesFile', 'XConfFile')";
     private PreparedStatement stmtSelectFilesCount;
     
+    private static final Logger log = Logger.getLogger(JdbcExplorablesDatabase.class.getName());
+
     public JdbcExplorablesDatabase(Snapshot snapshot, boolean createNew) throws SQLException, ClassNotFoundException, ExplorationException {
     	super(snapshot);
     	
@@ -73,7 +77,7 @@ public class JdbcExplorablesDatabase extends AbstractJdbcDatabase {
     }
 
     private void openConnection(String name) throws ClassNotFoundException, SQLException {
-    	System.out.println("Opening connection " + getSnapshot());
+    	if (log.isLoggable(Level.FINE)) log.fine("Opening connection " + getSnapshot());
 
     	System.setProperty("derby.system.home", JdbcDatabaseManager.getDbFolder());
         Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
@@ -143,7 +147,7 @@ public class JdbcExplorablesDatabase extends AbstractJdbcDatabase {
             stmtInsertExplorable.setString(7, e.getSha());			// SHA
             stmtInsertExplorable.executeUpdate();
 
-            System.out.println(
+            if (log.isLoggable(Level.FINEST)) log.finest(
         			"Inserted Explorable into database: id = " + e.getId() + 
     				", relativeId = " + relativeId + 
     				", parentId = " + e.getParentId() + 
@@ -152,7 +156,7 @@ public class JdbcExplorablesDatabase extends AbstractJdbcDatabase {
     				", type = " + type +
     				", SHA = " + e.getSha());
         } catch (SQLException ex) {
-            System.out.println(
+            if (log.isLoggable(Level.SEVERE)) log.severe(
         			"FAILED to insert Explorable into database: id = " + e.getId() + 
     				", relativeId = " + relativeId + 
     				", parentId = " + e.getParentId() + 
@@ -226,7 +230,7 @@ public class JdbcExplorablesDatabase extends AbstractJdbcDatabase {
 
     public void close() throws IOException {
         try {
-        	System.out.println("Closing connection " + getSnapshot());
+        	if (log.isLoggable(Level.FINE)) log.fine("Closing connection " + getSnapshot());
 
         	stmtInsertExplorable.close();
             stmtSelectChildExplorables.close();

@@ -2,6 +2,8 @@ package org.opencompare.explorable.files.java;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.opencompare.database.IdGenerator;
 import org.opencompare.explorable.Explorable;
@@ -16,9 +18,11 @@ public class FileFactory implements ExplorableFactory {
 	private static final String TYPE_XCONF = XConfFile.class.getSimpleName();
 	private static final String TYPE_PROPERTIES = PropertiesFile.class.getSimpleName();
 
-	@Override
+    private final Logger log = Logger.getLogger(FileFactory.class.getName());
+
+    @Override
 	public Explorable parseExplorable(String type, int id, int parentId, String relativeId, String value, long hash, String sha) throws ExplorationException {
-		System.out.println("org.opencompare.explorable.files.js.FileFactory.newExplorable1(" + type + ", " + id + ", " + parentId + ", " + relativeId + ", " + value + ", " + hash + ", " + sha + ")");
+		if (log.isLoggable(Level.FINEST)) log.finest("org.opencompare.explorable.files.js.FileFactory.newExplorable1(" + type + ", " + id + ", " + parentId + ", " + relativeId + ", " + value + ", " + hash + ", " + sha + ")");
 		if (type.equals(TYPE_PROPERTIES) || type.equals(TYPE_XCONF)) {
 			File path = new File(relativeId);
 			String filename = path.getName().toLowerCase();
@@ -33,7 +37,7 @@ public class FileFactory implements ExplorableFactory {
 
 	@Override
 	public Explorable createExplorable(ProcessConfiguration config, IdGenerator idGenerator, Explorable origin, String type, Object... params) throws ExplorationException {
-		System.out.println("org.opencompare.explorable.files.js.FileFactory.newExplorable2(" + origin + ", " + type + ", " + Arrays.toString(params) + ")");
+		if (log.isLoggable(Level.FINEST)) log.finest("org.opencompare.explorable.files.js.FileFactory.newExplorable2(" + origin + ", " + type + ", " + Arrays.toString(params) + ")");
 		if (type.equals(TYPE_SIMPLE)) {
 			File path = (File) params[0];
 			String filename = path.getName().toLowerCase();

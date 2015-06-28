@@ -1,5 +1,9 @@
 package org.opencompare.core;
 
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
+
 import org.opencompare.ExploreApplication;
 import org.opencompare.explorable.ApplicationConfiguration;
 import org.opencompare.explorable.Conflict;
@@ -15,6 +19,10 @@ import org.osgi.framework.BundleContext;
 
 public class Activator implements BundleActivator {
 
+	private static final String DEBUG_LOG_PROPERTY = "org.opencompare.debug";
+	
+	private final Logger log = Logger.getLogger(Activator.class.getName());
+	
 	private static BundleContext context;
 
 	static BundleContext getContext() {
@@ -26,8 +34,17 @@ public class Activator implements BundleActivator {
 	 * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
 	 */
 	public void start(BundleContext bundleContext) throws Exception {
+		String loggingProp = bundleContext.getProperty(DEBUG_LOG_PROPERTY);
+		LogManager.getLogManager().readConfiguration(
+				this.getClass().getResourceAsStream(
+						"true".equalsIgnoreCase(loggingProp) ? 
+						"/org/opencompare/log-debug.properties" :
+						"/org/opencompare/log-default.properties"
+					)
+			);
+		
 		Activator.context = bundleContext;
-		System.out.println("Initializing core factories: START");
+		if (log.isLoggable(Level.FINE)) log.fine("Initializing core factories: START");
 		
 		RootFactory rootFactory = new RootFactory();
 		ApplicationConfiguration appConfig = ApplicationConfiguration.getInstance();
@@ -63,7 +80,7 @@ public class Activator implements BundleActivator {
 					)
 			);
 		
-		System.out.println("Initializing core factories: FINISH");
+		if (log.isLoggable(Level.FINE)) log.fine("Initializing core factories: FINISH");
 	}
 
 	/*
@@ -72,7 +89,7 @@ public class Activator implements BundleActivator {
 	 */
 	public void stop(BundleContext bundleContext) throws Exception {
 		Activator.context = null;
-		System.out.println("Unloading core factories");
+		if (log.isLoggable(Level.FINE)) log.fine("Unloading core factories");
 	}
 
 }

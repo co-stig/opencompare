@@ -1,12 +1,16 @@
 package org.opencompare.explorable;
 
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.opencompare.database.IdGenerator;
 import org.opencompare.explore.ExplorationException;
 
 @Creates({Root.class, Property.class, ThreadControllExplorable.class, Conflict.class, Description.class})
 public class RootFactory implements ExplorableFactory {
+
+	private final Logger log = Logger.getLogger(RootFactory.class.getName());
 
 	public static final String TYPE_ROOT = Root.class.getSimpleName();
 	public static final String TYPE_PROPERTY = Property.class.getSimpleName();
@@ -19,7 +23,7 @@ public class RootFactory implements ExplorableFactory {
 	 */
 	@Override
 	public Explorable parseExplorable(String type, int id, int parentId, String relativeId, String value, long hash, String sha) throws ExplorationException {
-		System.out.println("org.opencompare.explorable.RootFactory.newExplorable1(" + type + ", " + id + ", " + parentId + ", " + relativeId + ", " + value + ", " + hash + ", " + sha + ")");
+		if (log.isLoggable(Level.FINEST)) log.finest("org.opencompare.explorable.RootFactory.newExplorable1(" + type + ", " + id + ", " + parentId + ", " + relativeId + ", " + value + ", " + hash + ", " + sha + ")");
 		if (type.equals(TYPE_PROPERTY)) {
 			return new Property(
 					id, 
@@ -38,7 +42,7 @@ public class RootFactory implements ExplorableFactory {
 
 	@Override
 	public Explorable createExplorable(ProcessConfiguration config, IdGenerator idGenerator, Explorable origin, String type, Object... params) throws ExplorationException {
-		System.out.println("org.opencompare.explorable.RootFactory.newExplorable2(" + origin + ", " + type + ", " + Arrays.toString(params) + ")");
+		if (log.isLoggable(Level.FINEST)) log.finest("org.opencompare.explorable.RootFactory.newExplorable2(" + origin + ", " + type + ", " + Arrays.toString(params) + ")");
 		if (type.equals(TYPE_PROPERTY)) {
 			return new Property(
 					idGenerator.nextId(),				// int id 

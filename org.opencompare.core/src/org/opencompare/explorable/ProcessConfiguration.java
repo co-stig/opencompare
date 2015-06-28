@@ -7,8 +7,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ProcessConfiguration {
+
+	private final Logger log = Logger.getLogger(ProcessConfiguration.class.getName());
 
 	private final List<OptionValue> processOptions = ApplicationConfiguration.getInstance().initializeAllOptions();
 	private final List<Closeable> toBeClosed = new ArrayList<Closeable>();
@@ -44,7 +48,7 @@ public class ProcessConfiguration {
 		
 		for (Closeable c: copy) {
 			try {
-				System.out.println("Closing " + c);
+				if (log.isLoggable(Level.FINER)) log.finer("Closing " + c);
 				c.close();
 			} catch (IOException e) {
 				e.printStackTrace();

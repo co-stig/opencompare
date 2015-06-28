@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -18,8 +20,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.opencompare.explorable.ApplicationConfiguration;
-import org.opencompare.explorable.ProcessConfiguration;
 import org.opencompare.explorable.Description;
+import org.opencompare.explorable.ProcessConfiguration;
 import org.opencompare.explore.ExplorationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -35,7 +37,9 @@ public class DescriptionsExporter {
 	private final JdbcDescriptionsDatabase database;
 	private final ProcessConfiguration config;
 	
-	public DescriptionsExporter(ProcessConfiguration config, JdbcDescriptionsDatabase database) throws ExplorationException {
+    private final Logger log = Logger.getLogger(DescriptionsExporter.class.getName());
+
+    public DescriptionsExporter(ProcessConfiguration config, JdbcDescriptionsDatabase database) throws ExplorationException {
 		this.config = config;
 		this.database = database;
 	}
@@ -183,7 +187,7 @@ public class DescriptionsExporter {
 			 * replace the old description with the updated one. As for now
 			 * we always skip it, i.e. never overwrite existing entries.
 			 */
-			System.out.println("Already in the database: " + existingDesc);
+			if (log.isLoggable(Level.FINEST)) log.finest("Already in the database: " + existingDesc);
 		}
 
 		// Process children objects, if any

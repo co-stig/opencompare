@@ -3,6 +3,8 @@ package org.opencompare;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.opencompare.compare.CompareThread;
 import org.opencompare.database.Database;
@@ -21,6 +23,8 @@ public class ExploreApplication {
 	public final static String OPTION_SNAPSHOT_NAME = "core/snapshot.name";
 	public final static String OPTION_EXPLORE_THREADS_COUNT = "core/explore.threads.count";
 	
+	private final static Logger log = Logger.getLogger(ExploreApplication.class.getName());
+	
     public static String TOOL_VERSION = "0.2";
     
     public static boolean ENABLE_EXPERIMENTAL_FUNCTIONALITY = false;
@@ -31,7 +35,7 @@ public class ExploreApplication {
 
     // TODO: Split it into several smaller methods
     public static Snapshot explore(ProcessConfiguration config, WithProgress progress) throws InterruptedException, ExplorationException, IOException {
-        System.out.println("Exploring with configuration: " + config);
+        if (log.isLoggable(Level.FINE)) log.fine("Exploring with configuration: " + config);
     	
     	DatabaseManager dbm = DatabaseManagerFactory.get();
 
@@ -42,9 +46,8 @@ public class ExploreApplication {
     	
         Database rootConnection = dbm.newExplorablesConnection(newDatabase);	// TODO: This is only used to enqueue the Root
 
-        System.out.print("Estimating size: ");
         int estimatedSize = 1000;	// TODO: Create good estimation (add to Explorer interface?)
-        System.out.println(estimatedSize);
+        if (log.isLoggable(Level.FINE)) log.fine("Estimated size: " + estimatedSize);
 
         newDatabase.setState(Snapshot.State.InProgress);
         ExploringThread anyThread = null;
@@ -76,7 +79,7 @@ public class ExploreApplication {
                 progressDb.close();
                 rootConnection.close();
                 Map<Closeable, IOException> exceptions = config.close();
-                System.out.println(exceptions);
+                if (log.isLoggable(Level.FINE)) log.fine(exceptions.toString());
                 // TODO: Handle exceptions better somehow?
             } catch (IOException ex) {
                 throw new ExplorationException("Unable to close the progress database", ex);
@@ -91,16 +94,15 @@ public class ExploreApplication {
     }
 
     public static Snapshot compare(ProcessConfiguration config, Snapshot referenceSnapshot, Snapshot actualSnapshot, WithProgress progress) throws InterruptedException, ExplorationException, IOException {
-        System.out.println("Comparing with configuration: " + config);
+        if (log.isLoggable(Level.FINE)) log.fine("Comparing with configuration: " + config);
         
     	DatabaseManager dbm = DatabaseManagerFactory.get();
     	
         Database referenceDb = dbm.newExplorablesConnection(referenceSnapshot);
         Database actualDb = dbm.newExplorablesConnection(actualSnapshot);
         
-        System.out.print("Estimating size: ");
         int estimatedSize = Math.max(referenceDb.size(), actualDb.size());
-        System.out.println(estimatedSize);
+        if (log.isLoggable(Level.FINE)) log.fine("Estimated size: " + estimatedSize);
 
     	String conflictSnapshotName = config.getOption(OPTION_SNAPSHOT_NAME).getStringValue();
         Snapshot newDatabase = dbm.createConflictsDatabase(conflictSnapshotName);

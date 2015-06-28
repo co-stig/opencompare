@@ -1,14 +1,19 @@
 package org.opencompare.ui;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 public class Activator implements BundleActivator {
 
-	public void start(BundleContext context) throws Exception {
-		System.out.println("Starting UI...");
+    private final Logger log = Logger.getLogger(Activator.class.getName());
+
+    public void start(BundleContext context) throws Exception {
+		if (log.isLoggable(Level.FINE)) log.fine("Starting UI...");
 		MainWindow.main(new String[] {});
-		System.out.println("Finished UI");
+		if (log.isLoggable(Level.FINE)) log.fine("Finished UI");
 	}
 	
 	public void stop(BundleContext context) throws Exception {

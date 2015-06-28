@@ -1,5 +1,8 @@
 package org.opencompare.explore;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.opencompare.explorable.ThreadControllExplorable;
 
 public class TerminatingThread extends Thread {
@@ -10,6 +13,8 @@ public class TerminatingThread extends Thread {
 
     private int lastExploringCount = 0;
 
+    private final Logger log = Logger.getLogger(TerminatingThread.class.getName());
+    
     public TerminatingThread(int threadsCount, int checkInterval, ExplorationProgressThread progress) {
         this.threadsCount = threadsCount;
         this.checkInterval = checkInterval;
@@ -38,6 +43,6 @@ public class TerminatingThread extends Thread {
                 break;
             }
         }
-        System.out.println("Exiting TerminatingThread");
+        if (log.isLoggable(Level.FINE)) log.fine("Exiting TerminatingThread");
     }
 }
